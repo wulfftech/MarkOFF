@@ -34,17 +34,22 @@ const MARKOFF_SITES = [
     active: true,
     inspected: true,
     selectors: {
-      card:   "wc-product-tile, shared-product-tile",
-      badge:  "[class*='everyday-market'], [class*='everydayMarket']",
-      detail: "[class*='everyday-market'], [class*='everydayMarket']",
+      card:        "wc-product-tile, shared-product-tile",
+      badge:       "[class*='everyday-market'], [class*='everydayMarket']",
+      // wc-product-tile renders its internals in a shadow root — normal querySelector can't reach them
+      // third-party seller cards have a .seller-name span inside the shadow root; first-party don't
+      // "Sold by Healthylife" is the main case — not Everyday Market, so the native button misses it
+      shadowBadge: ".seller-name",
+      detail:      "[class*='everyday-market'], [class*='everydayMarket']",
     },
     // woolworths built their own hide button so we just click it
     // clicking it adds isHideEverydayMarketProducts=true to the url which is a server-side filter
     // the css class is a css module hash so [class*='chip-toggle'] is more reliable than the full class
+    // note: this is now secondary — card-level runs first and catches what the native filter misses
     filterButton:     "[class*='chip-toggle']",
     filterButtonText: "hide everyday market",
     listingPatterns: ["/shop/search", "/shop/browse", "/shop/specials"],
-    notes: "Primary strategy: auto-click native 'Hide Everyday Market' chip. Angular app with wc-product-tile custom elements.",
+    notes: "Card-level primary (catches Healthylife + shadow-DOM sellers). Native 'Hide Everyday Market' chip secondary. Angular app with wc-product-tile custom elements.",
   },
 
   // ── Wesfarmers Group ──────────────────────────────────────────────────────

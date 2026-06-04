@@ -81,25 +81,20 @@
     if (isListingPage()) {
 
       if (filterMode === "toggle") {
-        // strategy a — native button
-        // retailer filters server-side, no blank grid holes, cleanest outcome
-        // if button isn't on this page, fall through to strategy b
-        if (site.filterButton) {
-          const activated = clickNativeFilterButton();
-          if (activated) {
-            restoreAll(); // clear any leftovers from a previous mode
-            return;
-          }
-        }
-
-        // strategy b — card hiding
-        // runs when there's no native button, or button wasn't found on this specific page
+        // strategy a — card hiding (primary)
+        // runs first so sellers that slip past the native filter (e.g. woolworths healthylife)
+        // are still caught by badge/shadow/text detection
         document.querySelectorAll(selectors.card).forEach((card) => {
           const isMP = isMarketplaceCard(card);
           card.classList.toggle(HIDDEN_CLASS, isMP);
           card.classList.remove(HIGHLIGHT_CLASS);
           if (isMP) hiddenCount++;
         });
+
+        // strategy a1 — native button (secondary)
+        // server-side filter means no grid holes on the next load — supplements card hiding
+        // if it triggers a page reload, card hiding re-runs on the cleaner result set
+        if (site.filterButton) clickNativeFilterButton();
 
       } else {
         // strategy c — highlight mode
@@ -152,6 +147,17 @@
         const textOk = !selectors.badgeText ||
           new RegExp(selectors.badgeText, "i").test(badgeEl.textContent);
         if (textOk) return true;
+      }
+    }
+    // shadow DOM check — woolworths wc-product-tile renders seller info inside a shadow root
+    // normal querySelector/textContent on the host element can't reach it
+    // third-party cards have a .seller-name span; first-party cards don't have one at all
+    if (selectors.shadowBadge && card.shadowRoot) {
+      const shadowEl = card.shadowRoot.querySelector(selectors.shadowBadge);
+      if (shadowEl) {
+        const text = shadowEl.textContent.trim().toLowerCase();
+        const isOwnStore = FIRST_PARTY_NAMES.some(name => text.includes(name));
+        if (!isOwnStore) return true;
       }
     }
     // no badge found — try the text heuristic as a last resort
