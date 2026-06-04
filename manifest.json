@@ -3,7 +3,7 @@
   "name": "MarkOFF",
   "version": "1.0.0",
   "description": "Automatically filters out third-party marketplace products on Australian retail websites (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, Kogan, THE ICONIC, Harvey Norman, Myer).",
-  "homepage_url": "https://github.com/YOUR_USERNAME/markoff",
+  "homepage_url": "https://github.com/wulfftech/MarkOFF",
 
   "icons": {
     "16":  "icons/icon16.png",
