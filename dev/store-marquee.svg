@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560">
+
+  <!-- Background -->
+  <rect width="1400" height="560" fill="#6b21a8"/>
+
+  <!-- Subtle depth gradient left→right -->
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#7e22ce" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#3b0764" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="560" fill="url(#grad)"/>
+
+  <!-- ── Left: Icon (same design as store tile, scaled 2.13×) ── -->
+
+  <!-- White circle body -->
+  <circle cx="220" cy="280" r="188" fill="#ffffff"/>
+
+  <!-- Market stall — black line art, scaled via transform -->
+  <g transform="translate(220,280) scale(2.13) translate(-220,-118)"
+     stroke="#111111" stroke-width="4" fill="none"
+     stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M 158 102 L 158 72 L 282 72 L 282 102"/>
+    <line x1="182" y1="72" x2="182" y2="102"/>
+    <line x1="206" y1="72" x2="206" y2="102"/>
+    <line x1="230" y1="72" x2="230" y2="102"/>
+    <line x1="254" y1="72" x2="254" y2="102"/>
+    <line x1="158" y1="102" x2="282" y2="102"/>
+    <path d="M 158 102 Q 178 118 198 102 Q 218 118 238 102 Q 258 118 278 102 L 282 102"/>
+    <line x1="170" y1="102" x2="170" y2="150"/>
+    <line x1="270" y1="102" x2="270" y2="150"/>
+    <path d="M 152 142 L 288 142 L 288 152 L 152 152 Z"/>
+    <line x1="154" y1="152" x2="286" y2="152"/>
+    <line x1="159" y1="152" x2="159" y2="167"/>
+    <line x1="281" y1="152" x2="281" y2="167"/>
+    <rect x="170" y="129" width="18" height="13" rx="2"/>
+    <rect x="196" y="125" width="16" height="17" rx="2"/>
+    <rect x="220" y="131" width="15" height="11" rx="2"/>
+    <rect x="244" y="127" width="17" height="15" rx="2"/>
+
+  </g>
+
+  <!-- Prohibited sign — circle outline + diagonal, purple -->
+  <circle cx="220" cy="280" r="188" fill="none" stroke="#7c3aed" stroke-width="20"/>
+  <clipPath id="circ"><circle cx="220" cy="280" r="184"/></clipPath>
+  <line x1="353" y1="147" x2="87" y2="413"
+        stroke="#7c3aed" stroke-width="20" stroke-linecap="round"
+        clip-path="url(#circ)"/>
+
+  <!-- Vertical separator -->
+  <line x1="460" y1="60" x2="460" y2="500" stroke="#9f67e4" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- ── Right: Text ── -->
+
+  <!-- "MarkOFF" -->
+  <text x="500" y="172"
+        font-family="-apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif"
+        font-size="104" fill="white" text-anchor="start">
+    <tspan font-weight="300">Mark</tspan><tspan font-weight="800">OFF</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="504" y="222"
+        font-family="-apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif"
+        font-size="26" font-weight="300" letter-spacing="0.8"
+        fill="#ddd6fe" text-anchor="start">
+    Australian retail. Minus the marketplace.
+  </text>
+
+  <!-- Divider -->
+  <line x1="500" y1="252" x2="1360" y2="252" stroke="#9f67e4" stroke-width="1" opacity="0.7"/>
+
+  <!-- Feature rows -->
+  <text x="500" y="308"
+        font-family="-apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif"
+        font-size="24" text-anchor="start">
+    <tspan font-weight="700" fill="white">Remove</tspan>
+    <tspan font-weight="300" fill="#c4b5fd"> — hides marketplace items from search and category pages</tspan>
+  </text>
+
+  <text x="500" y="366"
+        font-family="-apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif"
+        font-size="24" text-anchor="start">
+    <tspan font-weight="700" fill="white">Highlight</tspan>
+    <tspan font-weight="300" fill="#c4b5fd"> — marks them with a purple label so you know what you're looking at</tspan>
+  </text>
+
+  <text x="500" y="424"
+        font-family="-apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif"
+        font-size="24" text-anchor="start">
+    <tspan font-weight="700" fill="white">Warnings</tspan>
+    <tspan font-weight="300" fill="#c4b5fd"> — banner on product pages when the seller is a third party</tspan>
+  </text>
+
+  <!-- Divider -->
+  <line x1="500" y1="454" x2="1360" y2="454" stroke="#9f67e4" stroke-width="1" opacity="0.7"/>
+
+  <!-- Supported sites -->
+  <text x="500" y="498"
+        font-family="-apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif"
+        font-size="18" font-weight="400" letter-spacing="0.3"
+        fill="#e9d5ff" text-anchor="start">
+    Big W · Woolworths · Bunnings · Kmart · JB Hi-Fi · Harvey Norman · Myer · Kogan · THE ICONIC
+  </text>
+
+</svg>
