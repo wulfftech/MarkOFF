@@ -4,7 +4,7 @@
 MarkOFF
 
 ## Short description (132 chars max)
-Australian retailers now sell other people's stuff on their websites. MarkOFF hides it, or at least labels it clearly.
+Australian retailers now sell other people's stuff on their websites. MarkOFF hides the marketplace sellers. 9 sites supported.
 
 ---
 
