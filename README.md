@@ -1,16 +1,14 @@
 # MarkOFF
 
-* Somewhere along the way, Big W became a marketplace. So did Bunnings. And Woolworths. And Kmart, JB Hi-Fi, Harvey Norman, Myer, Kogan, and THE ICONIC.
+* Australia has 2 main problems - gambling ads and FUCKING MARKETPLACES. this extension solves the latter. 
 
-* Nobody told you. That's not an accident.
+* somehow, palpatine returned, then Big W became a marketplace. So did Bunnings. And Woolworths. And Kmart, JB Hi-Fi, Harvey Norman, Myer, and fuck Kogan for starting all this shit probably. basically we should have never shot that monkey 
 
 * This is a Chrome/Edge extension that hides or labels third-party marketplace items on Australian retail websites automatically, so you're not sitting there clicking around like an idiot before you hand over your credit card.
 
 * **Remove** mode hides marketplace items outright, or auto-clicks the site's own filter where one exists. **Highlight** mode marks them with a purple outline — still there, clearly flagged.
 
-* Detail page warnings on product pages for marketplace sellers.
-
-* No backend. No account. No data collected. Just less marketplace crap.
+* Detail page warnings on product pages for marketplace sellers. theres no backend or account and no data collected. Just less marketplace bullshittery when you just want to see if bunnings has that thing you don't need or if you need to hit up aliexpress.
 
 ---
 
