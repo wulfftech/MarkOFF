@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="64" fill="#6b21a8"/>
+  <!-- Strikethrough shopping tag shape -->
+  <!-- Tag body -->
+  <path d="M38 30 h30 a4 4 0 0 1 2.8 1.2 l26 26 a4 4 0 0 1 0 5.6 l-26 26 a4 4 0 0 1 -5.6 0 l-26 -26 a4 4 0 0 1 -1.2 -2.8 v-26 a4 4 0 0 1 4 -4 z"
+        fill="none" stroke="#e9d5ff" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Tag hole -->
+  <circle cx="47" cy="43" r="4" fill="#e9d5ff"/>
+  <!-- OFF strike — diagonal red line -->
+  <line x1="28" y1="100" x2="100" y2="28" stroke="#f87171" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "MarkOFF",
+  "version": "1.0.0",
+  "description": "Automatically filters out third-party marketplace products on Australian retail websites (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, Kogan, THE ICONIC, Harvey Norman, Myer).",
+  "homepage_url": "https://github.com/YOUR_USERNAME/markoff",
+
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "MarkOFF — Marketplace Filter"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.bigw.com.au/*",
+        "*://*.woolworths.com.au/*",
+        "*://*.bunnings.com.au/*",
+        "*://*.kmart.com.au/*",
+        "*://*.jbhifi.com.au/*",
+        "*://*.kogan.com/*",
+        "*://*.theiconic.com.au/*",
+        "*://*.harveynorman.com.au/*",
+        "*://*.myer.com.au/*"
+      ],
+      "js": ["sites.js", "content/filter.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  }
+}

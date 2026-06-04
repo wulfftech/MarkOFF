@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkOFF</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <img src="../icons/icon48.png" alt="" class="logo" width="22" height="22">
+    <span class="title">Mark<strong>OFF</strong></span>
+    <label class="toggle header-toggle" title="Enable/disable all filtering">
+      <input type="checkbox" id="globalToggle" checked>
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <!-- ── Tab bar ── -->
+  <nav class="tab-bar">
+    <button class="tab active" data-tab="filter">Filter</button>
+    <button class="tab" data-tab="help">Help</button>
+    <button class="tab" data-tab="about">About</button>
+  </nav>
+
+  <!-- ══ Filter tab ══ -->
+  <div id="tab-filter" class="tab-panel">
+
+    <!-- Mode -->
+    <div class="section mode-section">
+      <p class="section-label">FILTER MODE</p>
+      <div class="mode-options">
+        <label class="mode-option" id="mode-toggle-label">
+          <input type="radio" name="filterMode" value="toggle" id="modeToggle">
+          <span class="mode-icon">🚫</span>
+          <span class="mode-text">
+            <strong>Remove</strong>
+            <small>Uses the site's own hide button</small>
+          </span>
+        </label>
+        <label class="mode-option" id="mode-highlight-label">
+          <input type="radio" name="filterMode" value="highlight" id="modeHighlight">
+          <span class="mode-icon">🟣</span>
+          <span class="mode-text">
+            <strong>Highlight</strong>
+            <small>Labels items, keeps them visible</small>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Current site -->
+    <div id="currentSiteSection" class="section" hidden>
+      <p class="section-label">THIS SITE</p>
+      <div id="currentSiteRow" class="site-row">
+        <span id="currentSiteName" class="site-name"></span>
+        <label class="toggle">
+          <input type="checkbox" id="currentSiteToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p id="inspectedWarning" class="warning" hidden>
+        ⚠ Selectors not yet verified for this site — filtering may be incomplete.
+      </p>
+    </div>
+
+    <!-- All sites -->
+    <div class="section">
+      <p class="section-label">ALL SUPPORTED SITES</p>
+      <ul id="siteList"></ul>
+    </div>
+
+  </div>
+
+  <!-- ══ Help tab ══ -->
+  <div id="tab-help" class="tab-panel" hidden>
+    <div class="help-content">
+
+      <h3>What's a marketplace?</h3>
+      <p>Retailers like Big W, Bunnings and JB Hi-Fi now let <em>other companies</em> list products on their websites. These third-party sellers handle their own stock, shipping, and returns — but the listing looks identical to the retailer's own products.</p>
+      <p>About 65% of Australian shoppers don't know this is happening. Which is presumably the point.</p>
+
+      <h3>What MarkOFF does</h3>
+      <ul>
+        <li><strong>Remove mode</strong> — hides marketplace items from search and category pages, or auto-clicks the site's own filter button where one exists.</li>
+        <li><strong>Highlight mode</strong> — keeps everything visible but marks marketplace items with a purple outline and label.</li>
+        <li><strong>Detail page warnings</strong> — shows a banner on product pages when the seller is a third party, with a link to ACCC guidance.</li>
+      </ul>
+
+      <h3>The badge</h3>
+      <p>A purple badge in the bottom-right corner shows how many items were hidden. Click it to temporarily peek at them (they appear dimmed). Click again to re-hide.</p>
+
+      <h3>Consumer rights</h3>
+      <p>When buying from a marketplace seller, your consumer guarantees still apply under Australian Consumer Law — but the retailer's own policies (easy returns, click &amp; collect, price match) may not. The third-party seller is the responsible party, not the retailer.</p>
+      <p><a href="https://www.accc.gov.au/consumers/buying-products-and-services/buying-online" target="_blank" rel="noopener">ACCC guidance on buying online ↗</a></p>
+
+      <h3>Filtering stopped working?</h3>
+      <p>Retailers update their websites regularly. If MarkOFF stops filtering on a site, check for an extension update. If the issue persists, report it using the link below.</p>
+
+    </div>
+  </div>
+
+  <!-- ══ About tab ══ -->
+  <div id="tab-about" class="tab-panel" hidden>
+    <div class="about-content">
+      <div class="about-logo">
+        <img src="../icons/icon128.png" alt="MarkOFF" width="48" height="48">
+        <div>
+          <span class="about-name">Mark<strong>OFF</strong></span>
+          <span class="about-version" id="aboutVersion"></span>
+        </div>
+      </div>
+      <p class="about-tagline">Australian retail. Minus the marketplace.</p>
+
+      <div class="about-sites">
+        <p class="section-label">SUPPORTED RETAILERS</p>
+        <div id="aboutSiteGrid"></div>
+      </div>
+
+      <div class="about-links">
+        <a href="https://github.com/wulfftech/MarkOFF/issues/new" target="_blank" rel="noopener">Report a problem ↗</a>
+        <a href="https://github.com/wulfftech/MarkOFF" target="_blank" rel="noopener">Source code ↗</a>
+        <a href="https://www.accc.gov.au/consumers/buying-products-and-services/buying-online" target="_blank" rel="noopener">ACCC: buying online ↗</a>
+      </div>
+
+      <p class="about-disclaimer">Not affiliated with any retailer. No data collected. No accounts required.</p>
+    </div>
+  </div>
+
+  <script src="../sites.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
