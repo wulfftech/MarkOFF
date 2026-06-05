@@ -1,5 +1,7 @@
 # MarkOFF
 
+**[Install from the Chrome Web Store ↗](https://chromewebstore.google.com/detail/markoff/dknepomfodjmmpbeknaidmhimbpgfgba)**
+
 * Australia has 2 main problems - gambling ads and FUCKING MARKETPLACES. this extension solves the latter. 
 
 * somehow, palpatine returned, then Big W became a marketplace. So did Bunnings. And Woolworths. And Kmart, JB Hi-Fi, Harvey Norman, Myer, and fuck Kogan for starting all this shit probably. basically we should have never shot that monkey 
