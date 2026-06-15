@@ -4,7 +4,6 @@
 
 const fs   = require("fs");
 const path = require("path");
-const zlib = require("zlib");
 
 const ROOT    = path.resolve(__dirname, "..");
 const DIST    = path.join(ROOT, "dist");
@@ -21,8 +20,8 @@ const SOURCES = [
   "icons/icon128.png",
 ];
 
-// ── Minimal ZIP writer (store-only, no compression) ───────────────────────────
-// Each file is stored uncompressed so the zip is valid without a compression lib.
+// ── Minimal ZIP writer ────────────────────────────────────────────────────────
+// Entry names use forward slashes (from SOURCES) — required by the ZIP spec and AMO.
 
 function u16le(n) { const b = Buffer.alloc(2); b.writeUInt16LE(n); return b; }
 function u32le(n) { const b = Buffer.alloc(4); b.writeUInt32LE(n); return b; }
@@ -43,98 +42,53 @@ function crc32(buf) {
 }
 
 function buildZip(entries) {
-  // entries: [{ name: string, data: Buffer }]
-  const localHeaders = [];
-  const centralHeaders = [];
+  const localHeaders = [], centralHeaders = [];
   let offset = 0;
-
   for (const { name, data } of entries) {
-    const nameBytes = Buffer.from(name);
-    const crc       = crc32(data);
-    const size      = data.length;
-
+    const nb  = Buffer.from(name); // forward slashes preserved from SOURCES
+    const crc = crc32(data);
+    const sz  = data.length;
     const local = Buffer.concat([
-      Buffer.from([0x50, 0x4B, 0x03, 0x04]), // sig
-      u16le(20),        // version needed
-      u16le(0),         // flags
-      u16le(0),         // compression: stored
-      u16le(0),         // mod time
-      u16le(0),         // mod date
-      u32le(crc),
-      u32le(size),      // compressed size
-      u32le(size),      // uncompressed size
-      u16le(nameBytes.length),
-      u16le(0),         // extra len
-      nameBytes,
-      data,
+      Buffer.from([0x50,0x4B,0x03,0x04]),
+      u16le(20), u16le(0), u16le(0), u16le(0), u16le(0),
+      u32le(crc), u32le(sz), u32le(sz),
+      u16le(nb.length), u16le(0), nb, data,
     ]);
-
-    const central = Buffer.concat([
-      Buffer.from([0x50, 0x4B, 0x01, 0x02]), // sig
-      u16le(20),        // version made by
-      u16le(20),        // version needed
-      u16le(0),         // flags
-      u16le(0),         // compression: stored
-      u16le(0),         // mod time
-      u16le(0),         // mod date
-      u32le(crc),
-      u32le(size),
-      u32le(size),
-      u16le(nameBytes.length),
-      u16le(0),         // extra len
-      u16le(0),         // comment len
-      u16le(0),         // disk start
-      u16le(0),         // internal attr
-      u32le(0),         // external attr
-      u32le(offset),    // local header offset
-      nameBytes,
-    ]);
-
+    centralHeaders.push(Buffer.concat([
+      Buffer.from([0x50,0x4B,0x01,0x02]),
+      u16le(20), u16le(20), u16le(0), u16le(0), u16le(0), u16le(0),
+      u32le(crc), u32le(sz), u32le(sz),
+      u16le(nb.length), u16le(0), u16le(0), u16le(0), u16le(0),
+      u32le(0), u32le(offset), nb,
+    ]));
     localHeaders.push(local);
-    centralHeaders.push(central);
     offset += local.length;
   }
-
-  const centralDir  = Buffer.concat(centralHeaders);
-  const centralSize = centralDir.length;
-  const centralOffset = offset;
-
+  const cd   = Buffer.concat(centralHeaders);
   const eocd = Buffer.concat([
-    Buffer.from([0x50, 0x4B, 0x05, 0x06]), // sig
-    u16le(0),                     // disk number
-    u16le(0),                     // disk with central dir
-    u16le(entries.length),        // entries on this disk
-    u16le(entries.length),        // total entries
-    u32le(centralSize),
-    u32le(centralOffset),
-    u16le(0),                     // comment len
+    Buffer.from([0x50,0x4B,0x05,0x06]),
+    u16le(0), u16le(0),
+    u16le(entries.length), u16le(entries.length),
+    u32le(cd.length), u32le(offset), u16le(0),
   ]);
-
-  return Buffer.concat([...localHeaders, centralDir, eocd]);
+  return Buffer.concat([...localHeaders, cd, eocd]);
 }
 
 // ── Build ─────────────────────────────────────────────────────────────────────
 
 function buildVariant(label, transformManifest) {
   const entries = [];
-
   for (const rel of SOURCES) {
-    const full = path.join(ROOT, rel);
-    let data = fs.readFileSync(full);
-
+    let data = fs.readFileSync(path.join(ROOT, rel));
     if (rel === "manifest.json") {
       const json = JSON.parse(data.toString("utf8"));
       transformManifest(json);
       data = Buffer.from(JSON.stringify(json, null, 2));
     }
-
     entries.push({ name: rel, data });
   }
-
-  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8"));
-  const version  = manifest.version;
-  const outFile  = path.join(DIST, `markoff-${label}-${version}.zip`);
-
+  const version = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8")).version;
+  const outFile = path.join(DIST, `markoff-${label}-${version}.zip`);
   fs.mkdirSync(DIST, { recursive: true });
   fs.writeFileSync(outFile, buildZip(entries));
   console.log(`✓ ${path.relative(ROOT, outFile)}  (${entries.length} files)`);
@@ -155,6 +109,12 @@ buildVariant("firefox", (json) => {
 
   // MV2 uses background.scripts instead of service_worker
   json.background = { scripts: ["background.js"] };
+
+  // Required since Firefox 140 — declare what user data the extension collects.
+  // Lives under browser_specific_settings.gecko, and "no collection" must be the
+  // explicit ["none"] keyword (an empty array reads to the validator as missing).
+  // MarkOFF collects nothing; all storage is local user prefs only.
+  json.browser_specific_settings.gecko.data_collection_permissions = { required: ["none"] };
 });
 
 console.log("done.");
