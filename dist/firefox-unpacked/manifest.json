@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "MarkOFF",
+  "version": "1.0.0",
+  "description": "Australian retailers now sell other people's stuff on their websites. MarkOFF hides the marketplace sellers. 9 sites supported.",
+  "homepage_url": "https://github.com/wulfftech/MarkOFF",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.bigw.com.au/*",
+        "*://*.woolworths.com.au/*",
+        "*://*.bunnings.com.au/*",
+        "*://*.kmart.com.au/*",
+        "*://*.jbhifi.com.au/*",
+        "*://*.kogan.com/*",
+        "*://*.theiconic.com.au/*",
+        "*://*.harveynorman.com.au/*",
+        "*://*.myer.com.au/*"
+      ],
+      "js": [
+        "sites.js",
+        "content/filter.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "markoff@wulff.com.au",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "browser_action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "MarkOFF — Marketplace Filter"
+  }
+}
