@@ -140,14 +140,13 @@
     if (selectors.badge) {
       // check root element first — the iconic puts data-track-affiliation on the card div itself
       // not on a child, so card.matches() needs to run before querySelector
-      const badgeEl = card.matches(selectors.badge) ? card : card.querySelector(selectors.badge);
-      if (badgeEl) {
-        // badgeText gates the match — harvey norman's offer-flag is on ALL products
-        // only "ONLINE ONLY" means Customer Direct / marketplace
-        const textOk = !selectors.badgeText ||
-          new RegExp(selectors.badgeText, "i").test(badgeEl.textContent);
-        if (textOk) return true;
-      }
+      // a card can carry more than one badge (kmart: Bestseller + Marketplace + Online only) —
+      // querySelectorAll + find so badgeText isn't just tested against whichever comes first in the DOM
+      const badgeEls = card.matches(selectors.badge) ? [card] : Array.from(card.querySelectorAll(selectors.badge));
+      const badgeEl = selectors.badgeText
+        ? badgeEls.find(el => new RegExp(selectors.badgeText, "i").test(el.textContent))
+        : badgeEls[0];
+      if (badgeEl) return true;
     }
     // shadow DOM check — woolworths wc-product-tile renders seller info inside a shadow root
     // normal querySelector/textContent on the host element can't reach it
@@ -155,8 +154,11 @@
     if (selectors.shadowBadge && card.shadowRoot) {
       const shadowEl = card.shadowRoot.querySelector(selectors.shadowBadge);
       if (shadowEl) {
-        const text = shadowEl.textContent.trim().toLowerCase();
-        const isOwnStore = FIRST_PARTY_NAMES.some(name => text.includes(name));
+        const text = shadowEl.textContent.trim();
+        // "own seller" is site-relative, not global — Big W selling on Woolworths' Everyday
+        // Market is third-party here even though FIRST_PARTY_NAMES treats "big w" as first-party
+        // elsewhere. shadowOwnSeller scopes the check to this site's own name specifically.
+        const isOwnStore = site.shadowOwnSeller && new RegExp(site.shadowOwnSeller, "i").test(text);
         if (!isOwnStore) return true;
       }
     }

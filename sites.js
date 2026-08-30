@@ -42,6 +42,10 @@ const MARKOFF_SITES = [
       shadowBadge: ".seller-name",
       detail:      "[class*='everyday-market'], [class*='everydayMarket']",
     },
+    // scopes the shadowBadge own-seller check to Woolworths itself — a card sold by "BIG W" or
+    // any other retailer is genuinely third-party here, even though those names count as
+    // first-party on their own sites (see FIRST_PARTY_NAMES in filter.js)
+    shadowOwnSeller: "woolworths",
     // woolworths built their own hide button so we just click it
     // clicking it adds isHideEverydayMarketProducts=true to the url which is a server-side filter
     // the css class is a css module hash so [class*='chip-toggle'] is more reliable than the full class
@@ -61,14 +65,13 @@ const MARKOFF_SITES = [
     active: true,
     inspected: true,
     selectors: {
-      card:   "article[data-locator^='search-product-tile']",
-      // data-locator attributes come from bunnings' own component library and are very stable
-      // if these break, bunnings has done a significant frontend rewrite
-      badge:  "[data-locator='searchproducttile-badge-container']",
-      detail: "[data-locator='searchproducttile-badge-container']",
+      // bunnings rewrote the tile component (Tailwind) Aug 2026 — data-locator badge/article are gone
+      card:   "[data-search-product-tile='true']",
+      badge:  "p.text-brand-marketplace-primary",
+      detail: "p.text-brand-marketplace-primary",
     },
     listingPatterns: ["/search", "/category", "/brand", "/bunnings-marketplace"],
-    notes: "data-locator attributes are from Bunnings' component library — very stable.",
+    notes: "Rewritten Aug 2026 — old data-locator selectors matched 0 elements. New card root is a plain div[data-search-product-tile='true']; badge text is always 'Marketplace | Online only'.",
   },
 
   {
@@ -81,11 +84,17 @@ const MARKOFF_SITES = [
       card:   "li[data-testid='plp-grid-item']",
       // kosmos is kmart's design system. role=status narrows it to label/badge elements specifically
       // without this, the class selector would also match layout boxes, not just badges
+      // as of Aug 2026 the same component also renders "Trending"/"Bestseller"/"Online only" —
+      // badgeText is required or every status badge gets treated as marketplace
       badge:  "[class*='kosmos-ds-Box'][role='status']",
+      badgeText: "marketplace",
       detail: "[class*='kosmos-ds-Box'][role='status']",
     },
+    // detail page reuses the same badge component for a "related products" rail —
+    // without this, candidates[0] can land on an unrelated Kmart/KmartTarget chip instead
+    detailTextMatch: "marketplace",
     listingPatterns: ["/category/", "/collection/", "/search"],
-    notes: "Kosmos design system. role='status' on the inner Box narrows to label badges only.",
+    notes: "Kosmos design system. role='status' on the inner Box narrows to label badges only. badgeText/detailTextMatch required since Aug 2026 — same component now also carries Trending/Bestseller/Online only/Kmart/KmartTarget labels.",
   },
 
   // ── JB Hi-Fi ──────────────────────────────────────────────────────────────
@@ -122,10 +131,11 @@ const MARKOFF_SITES = [
     active: true,
     inspected: true,
     selectors: {
-      // root card has data-testid="product-card_SKU" — using prefix match because sku changes
+      // harvey norman dropped the per-sku suffix Aug 2026 — testid is now a static "product-card"
+      // (sku moved to a separate data-product-sku attribute)
       // don't use [class*='GelBrickProductCard'] — that matches 3+ sub-elements per card
       // and you'd end up hiding 120 things when there are only 40 marketplace items
-      card:      "[data-testid^='product-card_']",
+      card:      "[data-testid='product-card']",
       // all product flags use offer-flag testid — badgeText gates it to "ONLINE ONLY" only
       // ONLINE ONLY == Customer Direct on harvey norman. not guaranteed to stay that way.
       badge:     "[data-testid='offer-flag']",
@@ -141,7 +151,7 @@ const MARKOFF_SITES = [
     // carousels also use the card selector, confusing listing vs detail detection
     detailUrlPattern: "\\.html",
     listingPatterns: ["/search", "/c/", "/category"],
-    notes: "ONLINE ONLY flag = Customer Direct. data-testid^='product-card_' is the root. .product-cvps-header is stable non-hashed class.",
+    notes: "ONLINE ONLY flag = Customer Direct. Card testid lost its SKU suffix Aug 2026 — now static 'product-card'. .product-cvps-header is stable non-hashed class.",
   },
 
   // ── Myer ──────────────────────────────────────────────────────────────────
@@ -202,14 +212,19 @@ const MARKOFF_SITES = [
     name: "THE ICONIC",
     domain: "theiconic.com.au",
     active: true,
-    inspected: true,
+    inspected: false,
     selectors: {
       // AngularJS app — div.product.columns is a stable semantic class
       card:   "div.product.columns",
-      // marketplace cards have data-track-affiliation on the root element itself
-      // (not a child — card.matches(badge) handles this in filter.js)
-      // .sponsored-message is a backup for the same items
-      badge:  "[data-track-affiliation], .sponsored-message",
+      // [data-track-affiliation='citrus'] / .sponsored-message were previously (wrongly) used
+      // as the marketplace badge — re-inspected Aug 2026 and confirmed it's Citrus retail-media
+      // ad tracking (the element literally renders "Sponsored"), unrelated to seller identity.
+      // Removed rather than left in: it was flagging paid 1P ad placements as marketplace.
+      // No replacement signal found — checked JSON-LD (no seller field), the Delivery & Returns
+      // accordion (generic postcode/returns text only, no seller/dispatch mention) on a normal
+      // item and on a confirmed dropship-style listing (generic-brand yoga mat). THE ICONIC does
+      // not appear to expose per-item seller identity anywhere client-side.
+      badge:  "",
       // no reliable detail-page signal found
       // "cannot be returned" applies to ALL non-returnable products, not just marketplace ones
       // so detail-page warnings are disabled for the iconic
@@ -219,7 +234,7 @@ const MARKOFF_SITES = [
     // as listing pages when related-product carousels are present
     detailUrlPattern: "\\.html",
     listingPatterns: ["/women/", "/men/", "/kids/", "/sport/", "/sale/", "/new-arrivals/", "/search/", "/all/"],
-    notes: "data-track-affiliation on card root — uses card.matches() not querySelector. No reliable detail-page signal. ~42% 3P GMV.",
+    notes: "No working seller signal as of Aug 2026 re-inspection — the old data-track-affiliation/.sponsored-message badge was misidentifying Citrus sponsored-ad placements as marketplace items and has been removed. Site currently provides no marketplace protection; needs fresh research (mobile app API? cookie-gated field?) to find a real signal. ~42% 3P GMV per prior research.",
   },
 
   // ── confirmed no marketplace ───────────────────────────────────────────────
