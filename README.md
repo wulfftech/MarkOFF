@@ -4,7 +4,7 @@
 
 * Australia has 2 main problems - gambling ads and FUCKING MARKETPLACES. this extension solves the latter. 
 
-* somehow, palpatine returned, then Big W became a marketplace. So did Bunnings. And Woolworths. And Kmart, JB Hi-Fi, Harvey Norman, Myer, and fuck Kogan for starting all this shit probably. basically we should have never shot that monkey 
+* somehow, palpatine returned, then Big W became a marketplace. So did Bunnings. And Woolworths. And Kmart, JB Hi-Fi, Harvey Norman, Myer, and fuck Kogan for starting all this shit probably. And now Jaycar's got a fucking marketplace too because the universe hates us. basically we should have never shot that monkey 
 
 * This is a Chrome/Edge extension that hides or labels third-party marketplace items on Australian retail websites automatically, so you're not sitting there clicking around like an idiot before you hand over your credit card.
 
@@ -34,6 +34,7 @@
 | Myer (Myer Market) | Detail page warning (listing pages don't expose seller identity) |
 | Kogan | Detail page warning with own-seller suppression |
 | THE ICONIC | `data-track-affiliation` / `.sponsored-message` on listing cards |
+| Jaycar | URL param `?excludeEa=1` (Extended Assortment) on search + category pages |
 
 Myer is migrating to a new marketplace platform in 2026. Selectors may need updating after that.
 

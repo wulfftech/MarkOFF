@@ -237,6 +237,37 @@ const MARKOFF_SITES = [
     notes: "No working seller signal as of Aug 2026 re-inspection — the old data-track-affiliation/.sponsored-message badge was misidentifying Citrus sponsored-ad placements as marketplace items and has been removed. Site currently provides no marketplace protection; needs fresh research (mobile app API? cookie-gated field?) to find a real signal. ~42% 3P GMV per prior research.",
   },
 
+  // ── Jaycar ────────────────────────────────────────────────────────────────
+
+  {
+    id: "jaycar",
+    name: "Jaycar",
+    domain: "jaycar.com.au",
+    active: true,
+    inspected: true,
+    selectors: {
+      // no per-card marketplace badge — jaycar hides seller identity on listing pages
+      // the only "marketplace" text on a listing page is the footer nav + the filter button itself
+      card:   "",
+      badge:  "",
+      detail: "",
+    },
+    // jaycar's "Exclude Marketplace Products" button is just a wrapper for a
+    // server-side url param — clicking it navigates to ?excludeEa=1
+    // (EA = Extended Assortment, their marketplace program). same pattern as
+    // jb hi-fi's ?excludeMarketplace=true, so we inject the param directly
+    // instead of hunting for the button. works on search and category pages.
+    filterUrlParam: "excludeEa=1",
+    // the button is pure url-driven — no aria state, renders unchecked even when
+    // ?excludeEa=1 is active, so it looks broken once markoff does the filtering.
+    // brandButton swaps its contents for markoff branding ("Marketplace Items Hidden")
+    // while the filter is active. filter.js narrows matches by /marketplace/i because
+    // the "in-stock at store" button shares the same css-module class.
+    brandButton: "[class*='ProductListFilters_filterBtn']",
+    listingPatterns: ["/search", "/c/"],
+    notes: "Server-side filter via ?excludeEa=1 (Extended Assortment). No per-card badge — the 'Exclude Marketplace Products' button (ProductListFilters_filterBtn) just navigates to this param; brandButton replaces it with markoff branding while active. Marketplace brands: Monocure, Playseat, Logitech, Bluetti, Ultimate Ears, Swann.",
+  },
+
   // ── confirmed no marketplace ───────────────────────────────────────────────
 
   {

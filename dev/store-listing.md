@@ -4,13 +4,13 @@
 MarkOFF
 
 ## Short description (132 chars max)
-Australian retailers now sell other people's stuff on their websites. MarkOFF hides the marketplace sellers. 9 sites supported.
+Australian retailers now sell other people's stuff on their websites. MarkOFF hides the marketplace sellers. 10 sites supported.
 
 ---
 
 ## Full description
 
-Somewhere along the way, Big W became a marketplace. So did Bunnings. And Woolworths, Kmart, JB Hi-Fi, Harvey Norman, Myer, Kogan, and THE ICONIC. Nobody told you. That's not an accident.
+Somewhere along the way, Big W became a marketplace. So did Bunnings. And Woolworths, Kmart, JB Hi-Fi, Harvey Norman, Myer, Kogan, and THE ICONIC. And now Jaycar. Nobody told you. That's not an accident.
 
 You go to buy a Weber barbecue from Bunnings and half the results are from a seller called "FitnessDirect888" shipping from a warehouse you've never heard of. The listing looks identical to everything else on the page. The returns process does not.
 
@@ -41,6 +41,7 @@ You go to buy a Weber barbecue from Bunnings and half the results are from a sel
 | Myer (Myer Market) | Search pages + detail warnings |
 | Kogan | Detail page warnings |
 | THE ICONIC | Listing pages |
+| Jaycar | Search, category pages |
 
 ---
 
@@ -67,6 +68,7 @@ That's it. Nothing is sent anywhere.
 - Retailers update their site structure constantly. If filtering stops working, check for an extension update or report it via the link in the popup — that's basically how this gets maintained.
 - THE ICONIC hides seller identity on listing pages entirely; about 42% of their GMV is third-party. Filtering targets what's detectable.
 - Myer is migrating marketplace platforms in 2026 — selectors may need an update after that.
+- Jaycar filters marketplace via a server-side `?excludeEa=1` param (Extended Assortment) — no per-card badge needed.
 
 ---
 
@@ -77,7 +79,7 @@ Shopping
 English (Australia)
 
 ## Tags / keywords
-marketplace filter, big w, bunnings, kmart, woolworths, JB Hi-Fi, harvey norman, myer, the iconic, third party seller, australia, shopping, consumer rights
+marketplace filter, big w, bunnings, kmart, woolworths, JB Hi-Fi, harvey norman, myer, the iconic, jaycar, third party seller, australia, shopping, consumer rights
 
 ---
 
@@ -94,4 +96,4 @@ Purple background (#6b21a8), white "MarkOFF" wordmark, tag-with-strikethrough ic
 tagline: "Australian retail. Minus the marketplace."
 
 ## Small promotional tile (920x680) — optional
-Same branding, add: "Supports Big W · Woolworths · Bunnings · Kmart · JB Hi-Fi · Harvey Norman · Myer · Kogan · THE ICONIC"
+Same branding, add: "Supports Big W · Woolworths · Bunnings · Kmart · JB Hi-Fi · Harvey Norman · Myer · Kogan · THE ICONIC · Jaycar"

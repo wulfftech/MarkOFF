@@ -214,6 +214,33 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
 
 ---
 
+## ✅ Jaycar — jaycar.com.au
+
+**Inspected:** 2026-09  
+**Test URL:** https://www.jaycar.com.au/search?text=led ; https://www.jaycar.com.au/3d-printers-supplies/c/10
+
+**Strategy:** Server-side URL param `?excludeEa=1` (no card/badge/detail selectors)  
+
+**Notes:**
+- Jaycar launched a marketplace in 2026 ("Extended Assortment" — hence `excludeEa`). Brands
+  include Monocure, Playseat, Logitech, Bluetti, Ultimate Ears, Swann.
+- The "Exclude Marketplace Products" button on listing pages is a wrapper: clicking it navigates
+  to `?excludeEa=1`. Confirmed live — button markup is
+  `button.ProductListFilters_filterBtn__*[role='button']`, no `aria-pressed`/`aria-checked`,
+  state is entirely URL-driven.
+- No per-card marketplace badge exists. The only "marketplace" text on a listing page is the
+  footer nav link + the button itself. Card tags (`[data-test-id='tag']`) only render
+  "On special"/"Clearance".
+- Detail pages expose seller via JSON-LD `Product.seller` (`{"@type":"Brand","name":"ELEEGO"}`)
+  rather than any visible DOM text — no "sold by"/"dispatched by" wording. Detail-page warnings
+  left disabled; the URL param covers listing filtering.
+- Configured via `filterUrlParam: "excludeEa=1"` + `listingPatterns: ["/search", "/c/"]` — same
+  mechanism as JB Hi-Fi's `?excludeMarketplace=true`. Works on both search and category pages.
+- Note: `?text=` search param isn't honored on direct navigation (site returns a fallback grid),
+  and Jaycar runs Forter bot-protection that trips on rapid scripted requests — verify manually.
+
+---
+
 ## Inspection workflow
 
 1. Open test URL in Chrome DevTools

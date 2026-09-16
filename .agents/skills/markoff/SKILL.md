@@ -5,7 +5,7 @@ description: Fixing/extending the MarkOFF marketplace extension.
 
 # MarkOFF Skill
 
-MarkOFF is a dependency-free Chrome/Edge/Firefox MV3 extension that hides or highlights third-party marketplace items on 9 Australian retail sites (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, Harvey Norman, Myer, Kogan, THE ICONIC). All retailer knowledge lives in one config file; the content script is generic.
+MarkOFF is a dependency-free Chrome/Edge/Firefox MV3 extension that hides or highlights third-party marketplace items on 10 Australian retail sites (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, Harvey Norman, Myer, Kogan, THE ICONIC, Jaycar). All retailer knowledge lives in one config file; the content script is generic.
 
 ## When to Use
 - Fixing broken filtering on a site (almost always a CSS selector change in `sites.js`)

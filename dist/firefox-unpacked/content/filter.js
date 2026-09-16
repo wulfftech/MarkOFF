@@ -75,6 +75,10 @@
     // and it's missing, location.replace() fires here and the rest of this run is skipped
     if (filterMode === "toggle") ensureUrlParam();
 
+    // strategy a0.5 — patch outbound links/forms so the next navigation already
+    // has the param (avoids the load-then-reload flash on subsequent pages)
+    if (filterMode === "toggle") patchOutboundNavigation();
+
     const { selectors } = site;
     let hiddenCount = 0, highlightCount = 0;
 
@@ -84,7 +88,9 @@
         // strategy a — card hiding (primary)
         // runs first so sellers that slip past the native filter (e.g. woolworths healthylife)
         // are still caught by badge/shadow/text detection
-        document.querySelectorAll(selectors.card).forEach((card) => {
+        // guarded because sites with a url-param-only strategy (jb hi-fi on collections,
+        // jaycar) ship an empty card selector — querySelectorAll("") throws SyntaxError
+        if (selectors.card) document.querySelectorAll(selectors.card).forEach((card) => {
           const isMP = isMarketplaceCard(card);
           card.classList.toggle(HIDDEN_CLASS, isMP);
           card.classList.remove(HIGHLIGHT_CLASS);
@@ -104,7 +110,8 @@
           el.classList.remove(HIDDEN_CLASS);
           el.classList.remove(DIMMED_CLASS);
         });
-        document.querySelectorAll(selectors.card).forEach((card) => {
+        // guarded same as strategy a — empty card selector throws
+        if (selectors.card) document.querySelectorAll(selectors.card).forEach((card) => {
           const isMP = isMarketplaceCard(card);
           card.classList.toggle(HIGHLIGHT_CLASS, isMP);
           if (isMP) highlightCount++;
@@ -121,15 +128,11 @@
     // shown when listing-page filtering isn't possible (myer, kogan, harvey norman)
     removeDetailWarning();
     if (!isListingPage() && selectors.detail) {
-      // use querySelectorAll + find, not querySelector
-      // kogan has multiple p.font-body-low-emphasis — first one is often "42mm", not "Sold by"
-      // detailTextMatch finds the right one
-      const candidates = Array.from(document.querySelectorAll(selectors.detail));
-      const anchor = site.detailTextMatch
-        ? candidates.find(el => new RegExp(site.detailTextMatch, "i").test(el.textContent))
-        : candidates[0];
-      if (anchor && !isOwnSeller(anchor)) showDetailWarning(anchor);
+      // ...existing code...
     }
+
+    // brand the native filter button when markoff's param is doing the filtering
+    brandFilterButton();
 
     updateBadge(hiddenCount, highlightCount);
   }
@@ -206,6 +209,47 @@
     if (!alreadyOn) target.click();
     nativeFilterActive = true;
     return true;
+  }
+
+  // ── 4d. brand the native filter button ────────────────────────────────────
+  // jaycar's "Exclude Marketplace Products" button is pure url-driven — no
+  // aria-pressed/checked, renders unchecked even when ?excludeEa=1 is active,
+  // so it looks broken once markoff is doing the filtering. swap its contents
+  // for markoff branding so it reads as an active "filtered by markoff" state.
+  // matches are narrowed by /marketplace/i because jaycar renders the
+  // "in-stock at store" button with the same css-module class.
+  const BRAND_ATTR = "data-markoff-branded";
+
+  function brandFilterButton() {
+    if (!site.brandButton) return;
+    const btns = Array.from(document.querySelectorAll(site.brandButton))
+      .filter(b => /marketplace/i.test(b.textContent));
+    const eligible = filterEnabled && filterMode === "toggle" && hasFilterParam();
+
+    btns.forEach((btn) => {
+      if (eligible) {
+        if (btn.hasAttribute(BRAND_ATTR)) return;
+        if (!btn.dataset.markoffOriginal) btn.dataset.markoffOriginal = btn.innerHTML;
+        btn.setAttribute(BRAND_ATTR, "");
+        btn.innerHTML =
+          `<div style="display:flex;gap:8px;align-items:center;pointer-events:none;">` +
+          `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" ` +
+          `stroke="#6b21a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">` +
+          `<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.83z"></path>` +
+          `<line x1="7" y1="7" x2="7.01" y2="7"></line>` +
+          `<line x1="3" y1="21" x2="21" y2="3"></line>` +
+          `</svg>` +
+          `<span style="color:#6b21a8;">${site.brandButtonText || "Marketplace Items Hidden"}</span>` +
+          `</div>`;
+        // clicking it would just strip the param, which markoff re-adds — pointless
+        btn.style.pointerEvents = "none";
+      } else if (btn.hasAttribute(BRAND_ATTR)) {
+        btn.innerHTML = btn.dataset.markoffOriginal;
+        delete btn.dataset.markoffOriginal;
+        btn.removeAttribute(BRAND_ATTR);
+        btn.style.pointerEvents = "";
+      }
+    });
   }
 
   // ── 4c. detail page text guards ───────────────────────────────────────────
@@ -433,6 +477,66 @@
     if (!shouldInjectParam()) return;
     if (hasFilterParam()) return;
     location.replace(addFilterParam(location.href));
+  }
+
+  // ── 10a. pre-navigation param injection ───────────────────────────────────
+  // ensureUrlParam() fires after the page has loaded, so a cold navigation to a
+  // listing page renders unfiltered results first, then location.replace()s —
+  // a visible reload flash. instead, rewrite the navigation *before* it happens:
+  //   - link hrefs get the param patched in, so the browser requests the filtered url directly
+  //   - form submissions get the param added to the action url at capture phase
+  //   - pushState/replaceState are patched in patchHistory() for spa navigations
+  // the only remaining redirect is a typed/bookmarked url without the param —
+  // unavoidable without a network-level redirect (declarativeNetRequest can't
+  // express "url lacks param", RE2 has no lookahead — it'd redirect-loop).
+  function patchOutboundNavigation() {
+    if (!site.filterUrlParam) return;
+
+    // rewrite hrefs on listing-page links pointing at other listing pages
+    // runs on every applyFilter via the mutationobserver debounce — cheap enough
+    // reversible: original href is stashed, restored when filtering is off/highlight mode
+    const fp = parseFilterParam();
+    const eligible = filterEnabled && filterMode === "toggle";
+    document.querySelectorAll("a[href]").forEach((a) => {
+      // restore previously patched links when no longer eligible
+      if (a.dataset.markoffOriginalHref) {
+        if (!eligible) {
+          a.setAttribute("href", a.dataset.markoffOriginalHref);
+          delete a.dataset.markoffOriginalHref;
+        }
+        return;
+      }
+      if (!eligible) return;
+      const href = a.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      try {
+        const u = new URL(href, location.origin);
+        if (u.origin !== location.origin) return;
+        if (!shouldInjectParam(u.pathname)) return;
+        if (u.searchParams.get(fp.key) === fp.val) return;
+        a.dataset.markoffOriginalHref = href;
+        u.searchParams.set(fp.key, fp.val);
+        a.setAttribute("href", u.pathname + u.search + u.hash);
+      } catch (_) {}
+    });
+
+    // capture-phase submit listener — adds the param to the form action before
+    // the browser builds the request. jaycar's search form does a GET to /search.
+    if (!window.__markoffSubmitPatched) {
+      document.addEventListener("submit", (e) => {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement) || form.method?.toLowerCase() !== "get") return;
+        try {
+          const u = new URL(form.action || location.href, location.origin);
+          if (u.origin !== location.origin || !shouldInjectParam(u.pathname)) return;
+          if (u.searchParams.get(parseFilterParam().key) !== parseFilterParam().val) {
+            u.searchParams.set(parseFilterParam().key, parseFilterParam().val);
+            form.action = u.toString();
+          }
+        } catch (_) {}
+      }, true);
+      window.__markoffSubmitPatched = true;
+    }
   }
 
   // ── 11. spa navigation ────────────────────────────────────────────────────
