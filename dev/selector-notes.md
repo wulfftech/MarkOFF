@@ -268,6 +268,45 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
 
 ---
 
+## ⚠ Baby Bunting — babybunting.com.au (marketplace confirmed, selector not yet verified)
+
+**Status:** Marketplace confirmed live — not yet inspected for DOM selectors  
+**Test URL:** https://www.babybunting.com.au/marketplace/about ; https://www.babybunting.com.au/search?query=pram
+
+**Notes:**
+- Baby Bunting marketplace is live (Mirakl-powered, announced via /marketplace/about). Site docs state: "you will notice a 'Sold & Shipped By' note on the product display page which indicates that the product is sold and delivered by a Marketplace seller."
+- 10,000+ marketplace products online per site marketing.
+- Listing pages render Constructor.io `article` cards (`data-cnstrc-item-*`). First-party cards show "Only at BB" badge. Marketplace cards have no confirmed per-card badge yet.
+- PDP "Sold & Shipped By" element not yet captured — needs direct inspection of a marketplace product page.
+- Tracked in `sites.js` as `active: false, inspected: false`. Add PDP detail selector (`detail` + `detailTextMatch: "sold & shipped"`) once verified.
+
+---
+
+## ⚠ Chemist Warehouse — chemistwarehouse.com.au (marketplace confirmed, previous note was wrong)
+
+**Status:** Marketplace confirmed live since Nov 2022 — previous Jun 2026 "no marketplace found" note was incorrect  
+**Test URL:** https://www.chemistwarehouse.com.au/shop-online/all-marketplace-lines
+
+**Notes:**
+- Chemist Warehouse marketplace launched Nov 2022 (Marketplacer-powered). "All Marketplace Lines" page and "Interested in becoming a Marketplace Seller?" help text are live.
+- Previous sites.js entry claimed "Inspected Jun 2026 — no marketplace found" — that inspection missed the marketplace. Entry reset to `inspected: false`.
+- Per-card marketplace badge or PDP seller signal not yet verified — needs selector research before enabling.
+- Tracked in `sites.js` as `active: false, inspected: false`.
+
+---
+
+## ⚠ Rebel Sport — rebel.com.au (marketplace confirmed, selector not yet verified)
+
+**Status:** Marketplace confirmed live — not yet inspected for DOM selectors  
+**Test URL:** https://rebel.com.au ; https://www.rebel.com.au/marketplace
+
+**Notes:**
+- Rebel Sport marketplace is live (Rithum/DSCO-powered; seller requirements documented at knowledge.rithum.com).
+- Per-card badge and PDP seller signal not yet verified — needs selector research before enabling.
+- Tracked in `sites.js` as `active: false, inspected: false`.
+
+---
+
 ## Inspection workflow
 
 1. Open test URL in Chrome DevTools

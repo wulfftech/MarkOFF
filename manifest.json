@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MarkOFF",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Australian retailers now sell other people's stuff on their websites. MarkOFF hides the marketplace sellers. 10 sites supported.",
   "homepage_url": "https://github.com/wulfftech/MarkOFF",
 
@@ -38,7 +38,9 @@
         "*://*.theiconic.com.au/*",
         "*://*.harveynorman.com.au/*",
         "*://*.myer.com.au/*",
-        "*://*.jaycar.com.au/*"
+        "*://*.jaycar.com.au/*",
+      "*://*.babybunting.com.au/*",
+      "*://*.rebel.com.au/*"
       ],
       "js": ["sites.js", "content/filter.js"],
       "run_at": "document_idle",

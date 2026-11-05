@@ -290,10 +290,10 @@ const MARKOFF_SITES = [
     name: "Chemist Warehouse",
     domain: "chemistwarehouse.com.au",
     active: false,
-    inspected: true,
+    inspected: false,
     selectors: { card: "", badge: "", detail: "" },
     listingPatterns: [],
-    notes: "Inspected Jun 2026 — no marketplace found.",
+    notes: "Marketplace launched Nov 2022 (Marketplacer-powered, 'All Marketplace Lines' page live). Previous Jun 2026 note claiming 'no marketplace found' was incorrect — needs re-inspection for per-card or PDP seller signal before enabling.",
   },
 
   {
@@ -305,6 +305,28 @@ const MARKOFF_SITES = [
     selectors: { card: "", badge: "", detail: "" },
     listingPatterns: [],
     notes: "Confirmed Jun 2026 — no marketplace.",
+  },
+
+  {
+    id: "babybunting",
+    name: "Baby Bunting",
+    domain: "babybunting.com.au",
+    active: false,
+    inspected: false,
+    selectors: { card: "", badge: "", detail: "" },
+    listingPatterns: [],
+    notes: "Marketplace confirmed live (Mirakl-powered, /marketplace/about). PDP shows 'Sold & Shipped By' note for marketplace sellers per site docs. Per-card listing badge and exact PDP DOM selector for 'Sold & Shipped By' not yet verified — needs selector research before enabling.",
+  },
+
+  {
+    id: "rebelsport",
+    name: "Rebel Sport",
+    domain: "rebel.com.au",
+    active: false,
+    inspected: false,
+    selectors: { card: "", badge: "", detail: "" },
+    listingPatterns: [],
+    notes: "Marketplace confirmed live (Rithum/DSCO-powered). Per-card badge and PDP seller signal not yet verified — needs selector research before enabling.",
   },
 
   {

@@ -36,6 +36,18 @@
 | THE ICONIC | Currently unverified — seller identity hidden client-side |
 | Jaycar | URL param `?excludeEa=1` (Extended Assortment) on search + category pages |
 
+## Confirmed marketplaces — pending selector verification
+
+The following Australian retailers run live third-party marketplaces. MarkOFF does not filter them yet because a reliable client-side signal (per-card badge, server-side URL param, or PDP seller text) has not been verified. They are tracked in `sites.js` as inactive/unverified so they surface in the popup for follow-up.
+
+| Retailer | Domain | Marketplace status | Known signal | What's needed |
+|---|---|---|---|---|
+| Baby Bunting | babybunting.com.au | Live (Mirakl-powered) | PDP "Sold & Shipped By" note per site docs | Exact PDP DOM selector; per-card listing badge if any |
+| Chemist Warehouse | chemistwarehouse.com.au | Live since Nov 2022 (Marketplacer) | "All Marketplace Lines" page live | Per-card or PDP seller signal |
+| Rebel Sport | rebel.com.au | Live (Rithum/DSCO-powered) | Seller integrations documented | Per-card badge or PDP seller signal |
+
+Once a selector is verified, flip `active: true` and `inspected: true` in `sites.js`, add the domain to `manifest.json` matches, and bump the version.
+
 ---
 
 ## Getting Started
