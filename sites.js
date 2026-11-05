@@ -262,11 +262,10 @@ const MARKOFF_SITES = [
     // jb hi-fi's ?excludeMarketplace=true, so we inject the param directly
     // instead of hunting for the button. works on search and category pages.
     filterUrlParam: "excludeEa=1",
+    // same safe paths as listingPatterns — param injection only on search/category
+    filterUrlParamPatterns: ["/search", "/c/"],
     // the button is pure url-driven — no aria state, renders unchecked even when
     // ?excludeEa=1 is active, so it looks broken once markoff does the filtering.
-    // brandButton swaps its contents for markoff branding ("Marketplace Items Hidden")
-    // while the filter is active. filter.js narrows matches by /marketplace/i because
-    // the "in-stock at store" button shares the same css-module class.
     brandButton: "[class*='ProductListFilters_filterBtn']",
     listingPatterns: ["/search", "/c/"],
     notes: "Server-side filter via ?excludeEa=1 (Extended Assortment). No per-card badge — the 'Exclude Marketplace Products' button (ProductListFilters_filterBtn) just navigates to this param; brandButton replaces it with markoff branding while active. Marketplace brands: Monocure, Playseat, Logitech, Bluetti, Ultimate Ears, Swann.",
