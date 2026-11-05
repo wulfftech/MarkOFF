@@ -128,7 +128,13 @@
     // shown when listing-page filtering isn't possible (myer, kogan, harvey norman)
     removeDetailWarning();
     if (!isListingPage() && selectors.detail) {
-      // ...existing code...
+      // use querySelectorAll + find, not querySelector
+      // kogan has multiple p.font-body-low-emphasis — first one is often "42mm", not "Sold by"
+      // kogan and kmart also render separate mobile + desktop seller blocks — prefer the visible one
+      const candidates = Array.from(document.querySelectorAll(selectors.detail))
+        .filter(hasDetailTextMatch);
+      const anchor = candidates.find(el => el.offsetParent !== null) || candidates[0];
+      if (anchor && !isOwnSeller(anchor)) showDetailWarning(anchor);
     }
 
     // brand the native filter button when markoff's param is doing the filtering

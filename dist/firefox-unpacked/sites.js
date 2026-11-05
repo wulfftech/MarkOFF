@@ -23,8 +23,9 @@ const MARKOFF_SITES = [
     // falls back to card hiding if the button isn't on the page
     filterButton:     "button[role='switch'][id='marketplace-items']",
     filterButtonText: "marketplace items",
-    listingPatterns: ["/search", "/browse", "/category", "/marketplace", "/c/"],
-    notes: "Native toggle button#marketplace-items (role=switch, aria-checked). Category URLs use /[category-path]/c/[id]. DOM fallback (card present?) covers any unlisted path patterns.",
+    detailUrlPattern: "^/product/",
+    listingPatterns: ["/search", "/browse", "/category", "/marketplace", "/collection/", "/c/"],
+    notes: "Card-level MarketplacePill primary. /marketplace redirects to /collection/marketplace as of Nov 2026. Category URLs use /[category-path]/c/[id].",
   },
 
   {
@@ -88,13 +89,14 @@ const MARKOFF_SITES = [
       // badgeText is required or every status badge gets treated as marketplace
       badge:  "[class*='kosmos-ds-Box'][role='status']",
       badgeText: "marketplace",
-      detail: "[class*='kosmos-ds-Box'][role='status']",
+      // scoped to .pdp-seller-sold-by-container so a marketplace item inside the
+      // related-products carousel at the bottom of a 1P product page doesn't trigger a false warning
+      detail: ".pdp-seller-sold-by-container [class*='kosmos-ds-Box'][role='status']",
     },
-    // detail page reuses the same badge component for a "related products" rail —
-    // without this, candidates[0] can land on an unrelated Kmart/KmartTarget chip instead
     detailTextMatch: "marketplace",
+    detailUrlPattern: "^/product/",
     listingPatterns: ["/category/", "/collection/", "/search"],
-    notes: "Kosmos design system. role='status' on the inner Box narrows to label badges only. badgeText/detailTextMatch required since Aug 2026 — same component now also carries Trending/Bestseller/Online only/Kmart/KmartTarget labels.",
+    notes: "Kosmos design system. role='status' on the inner Box narrows to label badges only. badgeText/detailTextMatch required since Aug 2026 — same component also carries Trending/Bestseller/Online only/Kmart/KmartTarget labels. Detail selector scoped to .pdp-seller-sold-by-container (Nov 2026) to exclude related-products rails.",
   },
 
   // ── JB Hi-Fi ──────────────────────────────────────────────────────────────
@@ -109,7 +111,8 @@ const MARKOFF_SITES = [
       card:   "[data-testid='product-card-content']",
       // this testid is on every marketplace card on both search and collection pages
       badge:  "[data-testid='marketplace-seller_callout_product-card']",
-      detail: "[data-testid='marketplace-seller_callout_product-card']",
+      // product detail pages use _pdp instead of _product-card
+      detail: "[data-testid='marketplace-seller_callout_pdp'], [data-testid='marketplace-seller_callout_product-card']",
     },
     // on /collections pages, jb actually supports a url param that filters server-side
     // ?excludeMarketplace=true — much cleaner than hiding individual cards
@@ -118,8 +121,9 @@ const MARKOFF_SITES = [
     filterUrlParamPatterns: ["/collections"],
     filterButton:           "[class*='Switch_switchContainer'] input[type='checkbox']",
     filterButtonText:       "exclude marketplace products",
+    detailUrlPattern:       "^/products/",
     listingPatterns: ["/search", "/collections", "/category"],
-    notes: "Shopify. URL param on /collections (server-side). Search pages use card-level badge. Toggle button confirmed on collections pages.",
+    notes: "Shopify. URL param on /collections (server-side). Search/collection cards use marketplace-seller_callout_product-card; detail pages use marketplace-seller_callout_pdp (updated Nov 2026).",
   },
 
   // ── Harvey Norman ─────────────────────────────────────────────────────────
@@ -175,8 +179,9 @@ const MARKOFF_SITES = [
     // "marketplace partner" only appears for 3P items — regular myer products don't have it
     // without this, we'd show a warning on every product page that has an accordion section
     detailTextMatch: "marketplace partner",
+    detailUrlPattern: "^/p/",
     listingPatterns: ["/search", "/c/"],
-    notes: "No listing-page badge — seller hidden. Detail: .accordion-item li contains 'sent directly from our Marketplace partner: [Seller]'. Migrating to Mirakl H1 2026 — re-inspect after.",
+    notes: "No listing-page badge — seller hidden in DOM even after the 2026 Mirakl migration (enableMarketplaceReplatform: true, verified Nov 2026; 'Delivery Only' badge is online_only, not marketplace-specific). Detail: .accordion-item contains 'sent directly from our Marketplace partner: [Seller]'.",
   },
 
   // ── Kogan ─────────────────────────────────────────────────────────────────
@@ -188,8 +193,9 @@ const MARKOFF_SITES = [
     active: true,
     inspected: true,
     selectors: {
-      card:   "article",
-      // no seller badge on listing pages at all
+      // no seller badge on listing pages — leave card empty so related-product <article>
+      // tiles on product pages don't trick isListingPage()'s DOM fallback into skipping the detail warning
+      card:   "",
       badge:  "",
       // p.font-body-low-emphasis appears a lot on product pages — size selectors, labels etc
       // detailTextMatch narrows it to the "Sold by X" paragraph specifically
@@ -199,10 +205,8 @@ const MARKOFF_SITES = [
     detailTextMatch: "sold by",
     // "sold by kogan.com" = first-party — suppress the warning
     detailOwnSeller: "kogan\\.com",
-    // kogan's product and category urls both use /au/buy/ so can't distinguish by url pattern
-    // using DOM fallback — category pages have many article elements, product pages have few/none
-    listingPatterns: [],
-    notes: "detailTextMatch='sold by' finds the right paragraph. detailOwnSeller suppresses warning for Kogan.com 1P. listingPatterns empty — DOM fallback distinguishes category vs product pages.",
+    listingPatterns: ["/au/shop/"],
+    notes: "Detail-only — no seller badge on listing cards. card left empty because Kogan product pages render 18 <article> tiles in related-product rails, which previously fooled the DOM fallback into treating product pages as listing pages (fixed Nov 2026).",
   },
 
   // ── THE ICONIC ────────────────────────────────────────────────────────────

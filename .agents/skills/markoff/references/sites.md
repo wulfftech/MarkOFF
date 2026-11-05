@@ -1,18 +1,19 @@
 # MarkOFF Site Reference
 
-Signals per retailer (from `sites.js`, README, `dev/selector-notes.md`). Status as of inspection 2026-06.
+Signals per retailer (from `sites.js`, README, `dev/selector-notes.md`). Status as of inspection 2026-11.
 
-| Site | Listing signal | Native filter button | Detail warning | Notes |
+| Site | Listing signal | Native filter / URL param | Detail warning | Notes |
 |---|---|---|---|---|
-| Big W | Card: `[data-testid='product-tile']`; badge `[class*='MarketplacePill']` | `button[role='switch'][id='marketplace-items']` (card fallback if absent) | Yes (MarketplacePill) | Test: bigw.com.au/marketplace |
-| Woolworths | Angular custom elements `wc-product-tile, shared-product-tile`; shadow-DOM `.seller-name` (shadowBadge); `[class*='everyday-market']` | `[class*='chip-toggle']` — adds `isHideEverydayMarketProducts=true` server-side; secondary to card-level | Yes | Healthylife sellers missed by native button |
-| Bunnings | `article[data-locator^='search-product-tile']`; badge `[data-locator='searchproducttile-badge-container']` | — | Yes | data-locator attrs very stable |
-| Kmart | Badge `kosmos-ds-Box[role=status]` | — | Yes | |
-| JB Hi-Fi | URL param `?excludeMarketplace=true` on collections; card badge on search | — | Yes | |
-| Harvey Norman | "ONLINE ONLY" flag = Customer Direct items | — | Yes | Product URLs end .html → needs detailUrlPattern |
-| Myer (Myer Market) | Listing pages don't expose seller identity | — | Yes | Platform migration 2026 — expect breakage |
-| Kogan | Detail-page detection with own-seller suppression | — | Yes | |
-| THE ICONIC | `data-track-affiliation` / `.sponsored-message` on cards | — | Yes | Seller identity hidden on listings entirely |
+| Big W | Card: `[data-testid='product-tile']`; badge `[class*='MarketplacePill']` | `button[role='switch'][id='marketplace-items']` | `[class*='MarketplacePill']` | `/marketplace` redirects to `/collection/marketplace` |
+| Woolworths | `wc-product-tile, shared-product-tile`; shadow-DOM `.seller-name` (`shadowOwnSeller: "woolworths"`); `[class*='everyday-market']` | `[class*='chip-toggle']` ("Hide Everyday Market") | `[class*='everyday-market'], [class*='everydayMarket']` | Card-level primary catches Healthylife + BIG W sellers |
+| Bunnings | Card: `[data-search-product-tile='true']`; badge `p.text-brand-marketplace-primary` | - | `p.text-brand-marketplace-primary` | Tailwind rewrite Aug 2026; verified Nov 2026 |
+| Kmart | Card: `li[data-testid='plp-grid-item']`; badge `[class*='kosmos-ds-Box'][role='status']` (`badgeText: "marketplace"`) | - | `.pdp-seller-sold-by-container [class*='kosmos-ds-Box'][role='status']` (`detailTextMatch: "marketplace"`) | Detail scoped to `.pdp-seller-sold-by-container` so related-product rails don't false-positive |
+| JB Hi-Fi | Card: `[data-testid='product-card-content']`; badge `[data-testid='marketplace-seller_callout_product-card']` | `?excludeMarketplace=true` on `/collections`; checkbox `[class*='Switch_switchContainer'] input[type='checkbox']` | `[data-testid='marketplace-seller_callout_pdp']` | PDP uses `_pdp` testid, not `_product-card` |
+| Harvey Norman | Card: `[data-testid='product-card']`; badge `[data-testid='offer-flag']` (`badgeText: "online only"`) | - | `.product-cvps-header` (`detailTextMatch: "customer direct"`) | Product URLs end `.html` (`detailUrlPattern: "\\.html"`) |
+| Myer (Myer Market) | Seller hidden in listing DOM | - | `.accordion-item` (`detailTextMatch: "marketplace partner"`) | Mirakl replatform (`enableMarketplaceReplatform: true`) verified Nov 2026 |
+| Kogan | Seller hidden in listing DOM (`card: ""`) | - | `p.font-body-low-emphasis` (`detailTextMatch: "sold by"`, `detailOwnSeller: "kogan\\.com"`) | `card: ""` prevents related-product `<article>` rails on PDPs from fooling `isListingPage()` |
+| THE ICONIC | None (`inspected: false`) | - | - | Old Citrus ad signal removed Aug 2026; no client-side seller signal exposed |
+| Jaycar | Server-side URL param only (`card: ""`) | `?excludeEa=1`; `brandButton: "[class*='ProductListFilters_filterBtn']"` | - | Extended Assortment marketplace |
 
 ## Config keys in sites.js entries
 - `id`, `name`, `domain`, `active`, `inspected`

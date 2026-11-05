@@ -25,18 +25,16 @@
 
 | Site | How it works |
 |---|---|
-| Big W | Native toggle button + card-level fallback |
-| Woolworths (Everyday Market) | Auto-clicks the "Hide Everyday Market" chip |
-| Bunnings | `data-locator` badge on product cards |
-| Kmart | `kosmos-ds-Box[role=status]` badge |
-| JB Hi-Fi | URL param `?excludeMarketplace=true` on collections, card badge on search |
+| Big W | `MarketplacePill` badge on cards + native toggle button |
+| Woolworths (Everyday Market) | Shadow-DOM seller check + "Hide Everyday Market" chip |
+| Bunnings | `p.text-brand-marketplace-primary` badge on product cards |
+| Kmart | `kosmos-ds-Box[role=status]` badge ("Marketplace") |
+| JB Hi-Fi | URL param `?excludeMarketplace=true` on collections, card badge on search, detail warning |
 | Harvey Norman (Customer Direct) | `ONLINE ONLY` flag on listing cards, detail page warning |
 | Myer (Myer Market) | Detail page warning (listing pages don't expose seller identity) |
 | Kogan | Detail page warning with own-seller suppression |
-| THE ICONIC | `data-track-affiliation` / `.sponsored-message` on listing cards |
+| THE ICONIC | Currently unverified — seller identity hidden client-side |
 | Jaycar | URL param `?excludeEa=1` (Extended Assortment) on search + category pages |
-
-Myer is migrating to a new marketplace platform in 2026. Selectors may need updating after that.
 
 ---
 
@@ -85,7 +83,7 @@ icons/                icon assets
 
 * Harvey Norman uses "ONLINE ONLY" as the listing-page signal for Customer Direct items. Real transparent of them.
 
-* THE ICONIC hides seller identity on listing pages entirely. The `data-track-affiliation` badge targets sponsored/affiliate-injected listings specifically. About 42% of their GMV is third-party, so statistically you're probably fine.
+* THE ICONIC hides seller identity on listing and product pages entirely. Their old `data-track-affiliation` badge turned out to be Citrus sponsored-ad placements, not seller identity, so it's disabled until they leak a real signal. About 42% of their GMV is third-party, so statistically you're probably fine.
 
 * Woolworths' "Hide Everyday Market" button filters at the server level by adding `isHideEverydayMarketProducts=true` to the URL. This means it also applies to pagination and any sharing of the filtered URL, which is a nice side effect.
 

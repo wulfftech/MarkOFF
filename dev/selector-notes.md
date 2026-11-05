@@ -6,17 +6,17 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
 
 ## ✅ Big W — bigw.com.au
 
-**Inspected:** 2026-06  
-**Test URL:** https://www.bigw.com.au/marketplace
+**Inspected:** 2026-06, re-verified 2026-11  
+**Test URL:** https://www.bigw.com.au/collection/marketplace (`/marketplace` redirects here)
 
 **Card:** `[data-testid='product-tile']` (article element)  
 **Badge:** `[class*='MarketplacePill']`  
-**Detail:** `[class*='MarketplacePill']` (same component used on detail pages)  
+**Detail:** `[class*='MarketplacePill']` + `detailUrlPattern: "^/product/"`  
 
 **Notes:**
 - Purple "Marketplace" badge rendered via `MarketplacePill` React component
-- Class prefix is stable — same on listing AND detail pages
-- 16/16 marketplace cards correctly identified on /marketplace page
+- Class prefix is stable - same on listing AND detail pages
+- Nov 2026: 48/48 marketplace cards matched on `/collection/marketplace`; 48 cards / 1 marketplace card matched on `/toys/c/68`; detail page `/product/.../p/9900826728` matched `[class*='MarketplacePill']` cleanly. Added `"/collection/"` to `listingPatterns` and `detailUrlPattern: "^/product/"`.
 
 ---
 
@@ -41,12 +41,12 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
 
 ## ✅ Kmart — kmart.com.au
 
-**Inspected:** 2026-06, re-inspected 2026-08 (added badgeText/detailTextMatch after a false-positive was found)  
+**Inspected:** 2026-06, re-inspected 2026-08, re-inspected 2026-11 (scoped detail selector)  
 **Test URL:** https://www.kmart.com.au/collection/marketplace-baby-nursery/
 
 **Card:** `li[data-testid='plp-grid-item']`  
 **Badge:** `[class*='kosmos-ds-Box'][role='status']` + `badgeText: "marketplace"`  
-**Detail:** `[class*='kosmos-ds-Box'][role='status']` + `detailTextMatch: "marketplace"`  
+**Detail:** `.pdp-seller-sold-by-container [class*='kosmos-ds-Box'][role='status']` + `detailTextMatch: "marketplace"` + `detailUrlPattern: "^/product/"`  
 
 **Notes:**
 - Marketplace is live as of FY26
@@ -66,6 +66,14 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
   (false negative). Fixed in `filter.js`'s `isMarketplaceCard()` to search all matching badges in
   the card for one whose text matches `badgeText`, instead of just the first one found. Re-verified
   on the same page: 10/10 marketplace cards correctly flagged, 0 false positives, 0 missed.
+- Nov 2026: on product detail pages (`/product/...`), `[class*='kosmos-ds-Box'][role='status']`
+  matched 12 elements - 4 on the main product (mobile + desktop `.pdp-seller-sold-by-container` and
+  `Online only`) and 8 inside the related-products carousel (`li[data-testid='scrollable-product-list-item'] .product-tile-seller-badge`),
+  which included a `Marketplace` badge on a related item. An unscoped detail selector would
+  false-positive on any 1P Kmart product page whose related-products rail contained a marketplace
+  item. Scoped `selectors.detail` to `.pdp-seller-sold-by-container [class*='kosmos-ds-Box'][role='status']`
+  and updated `filter.js` to prefer the visible (`offsetParent !== null`) match so the banner
+  attaches to whichever of `.show-on-mobile` / `.hide-on-mobile` is active.
 
 ---
 
@@ -99,18 +107,19 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
 
 ## ✅ JB Hi-Fi — jbhifi.com.au
 
-**Inspected:** 2026-06  
-**Test URL:** https://www.jbhifi.com.au/collections/marketplace-all-products
+**Inspected:** 2026-06, re-inspected 2026-11 (fixed PDP detail selector)  
+**Test URL:** https://www.jbhifi.com.au/collections/marketplace-all-products ; https://www.jbhifi.com.au/products/koolatron-retro-mini-fridge-4l-black
 
 **Card:** `[data-testid='product-card-content']`  
 **Badge:** `[data-testid='marketplace-seller_callout_product-card']`  
-**Detail:** `[data-testid='marketplace-seller_callout_product-card']`  
+**Detail:** `[data-testid='marketplace-seller_callout_pdp'], [data-testid='marketplace-seller_callout_product-card']` + `detailUrlPattern: "^/products/"`  
 
 **Notes:**
-- Shopify-based frontend — data-testid values are very stable
+- Shopify-based frontend - data-testid values are very stable
 - Badge `<p>` contains `<strong>JB Hi-Fi Marketplace:</strong> Sold and sent by [seller]`
-- The `data-testid='product-card-content'` is one level inside the card root but wraps all visible content — safe to hide
+- The `data-testid='product-card-content'` is one level inside the card root but wraps all visible content - safe to hide
 - 36 marketplace badges confirmed visible on /collections/marketplace-all-products
+- Nov 2026: product detail pages (`/products/...`) use `data-testid="marketplace-seller_callout_pdp"` rather than `marketplace-seller_callout_product-card` (which matched 0 elements on PDP). Updated `selectors.detail` and added `detailUrlPattern: "^/products/"`.
 
 ---
 
@@ -142,16 +151,34 @@ Status key:  ✅ Verified   ⏳ Needs inspection   ⚠ Partial
 
 ---
 
-## ⏳ Kogan — kogan.com
+## ✅ Kogan — kogan.com
 
-**Status:** Not inspected  
-**Test URL:** https://www.kogan.com/au/buy/phones/
+**Inspected:** 2026-06, re-inspected 2026-11 (fixed `isListingPage()` collision on PDPs)  
+**Test URL:** https://www.kogan.com/au/shop/category/phones-accessories-8450/phones/ ; https://www.kogan.com/au/buy/yellowprice-usb-c-car-charger-2-sockets-cigarette-lighter-splitter-1224v-80w-dual-usb-led-302002018/
+
+**Card:** `""` (detail-only)  
+**Badge:** `""` (not exposed on listing cards)  
+**Detail:** `p.font-body-low-emphasis` + `detailTextMatch: "sold by"` + `detailOwnSeller: "kogan\\.com"`  
 
 **Notes:**
-- Kogan is a marketplace-first site; most products are 3P
-- First-party products show "Sold by Kogan.com"
-- Need to find the "Sold by" element on a product card for both Kogan and 3P sellers
-- May require inverting the logic: hide cards where seller ≠ "Kogan.com"
+- Listing cards expose no seller or marketplace signal in the DOM.
+- Product detail pages render `p.font-body-low-emphasis` with `"Sold by [Seller]"` (twice in the DOM - once for desktop, once for mobile). `detailOwnSeller: "kogan\\.com"` suppresses warnings on 1P items.
+- Nov 2026 bug fix: `selectors.card` was previously set to `"article"` with `listingPatterns: []`. Kogan product detail pages render 18 `<article>` elements in the related-products rail, so `isListingPage()`'s DOM fallback (`document.querySelector(site.selectors.card) !== null`) returned `true` on every product page and blocked the detail warning from ever running. Set `card: ""` and `listingPatterns: ["/au/shop/"]`.
+
+---
+
+## ✅ Myer — myer.com.au
+
+**Inspected:** 2026-06, re-inspected 2026-11 (post-Mirakl replatform)  
+**Test URL:** https://www.myer.com.au/c/men/mens-accessories/mens-watches ; https://www.myer.com.au/p/cudworth-apex-chronograph-watch-in-turquoise
+
+**Card:** `[class*='product-detail']`  
+**Badge:** `""` (not exposed in listing DOM)  
+**Detail:** `.accordion-item` + `detailTextMatch: "marketplace partner"` + `detailUrlPattern: "^/p/"`  
+
+**Notes:**
+- Nov 2026: Myer's Mirakl migration (`"enableMarketplaceReplatform": true` in `#__NEXT_DATA__`) is now live. SSR `#__NEXT_DATA__` carries `miraklSkuId` on variants and `merchCategory: "MK MrktPlc Mirkl Cnc/..."`, but the rendered listing card DOM still has no marketplace badge (`[data-automation='delivery-only']` is driven by `productExclusive === "online_only"` in Myer's Next.js bundle, not seller identity).
+- Detail pages on Mirakl items continue to render `.accordion-item` containing `"This item is sent directly from our Marketplace partner: [Seller]"` (verified on `/p/cudworth-apex-chronograph-watch-in-turquoise`, partner: Renniks Group). Added `detailUrlPattern: "^/p/"`.
 
 ---
 
