@@ -126,7 +126,7 @@
 
     // detail page warning banner
     // shown when listing-page filtering isn't possible (myer, kogan, harvey norman)
-    removeDetailWarning();
+    let warningAnchor = null;
     if (!isListingPage() && selectors.detail) {
       // use querySelectorAll + find, not querySelector
       // kogan has multiple p.font-body-low-emphasis — first one is often "42mm", not "Sold by"
@@ -134,8 +134,9 @@
       const candidates = Array.from(document.querySelectorAll(selectors.detail))
         .filter(hasDetailTextMatch);
       const anchor = candidates.find(el => el.offsetParent !== null) || candidates[0];
-      if (anchor && !isOwnSeller(anchor)) showDetailWarning(anchor);
+      if (anchor && !isOwnSeller(anchor)) warningAnchor = anchor;
     }
+    warningAnchor ? showDetailWarning(warningAnchor) : removeDetailWarning();
 
     // brand the native filter button when markoff's param is doing the filtering
     brandFilterButton();
@@ -362,7 +363,11 @@
   // inserted before the matching element (seller info, returns section, etc.)
   // only appears when listing-page filtering isn't available for this site
   function showDetailWarning(anchorEl) {
-    if (document.getElementById(WARNING_ID)) return;
+    // leave a banner that's already in the right place alone — re-inserting it
+    // is an added node, which wakes the mutationobserver, which reruns applyFilter
+    const existing = document.getElementById(WARNING_ID);
+    if (existing && existing.nextElementSibling === anchorEl) return;
+    existing?.remove();
     const banner = document.createElement("div");
     banner.id = WARNING_ID;
     banner.innerHTML =
@@ -491,7 +496,7 @@
   // a visible reload flash. instead, rewrite the navigation *before* it happens:
   //   - link hrefs get the param patched in, so the browser requests the filtered url directly
   //   - form submissions get the param added to the action url at capture phase
-  //   - pushState/replaceState are patched in patchHistory() for spa navigations
+  //   - spa navigations are picked up in watchNavigation() and get the param on the rerun
   // the only remaining redirect is a typed/bookmarked url without the param —
   // unavoidable without a network-level redirect (declarativeNetRequest can't
   // express "url lacks param", RE2 has no lookahead — it'd redirect-loop).
@@ -546,9 +551,16 @@
   }
 
   // ── 11. spa navigation ────────────────────────────────────────────────────
-  // react / angular / next apps swap pages without a real navigation event
-  // monkey-patch history.pushState + history.replaceState to catch those
-  // popstate catches browser back/forward
+  // react / angular / next apps swap pages without a real navigation event.
+  // wrapping history.pushState doesn't work here: content scripts run in an
+  // isolated world, so the wrapper only sees the extension's own calls, never
+  // the page's. events do cross worlds, so listen instead:
+  //   - navigation "currententrychange" (chrome, recent firefox) fires after
+  //     every pushState/replaceState/traverse, including the page's
+  //   - popstate catches back/forward where the navigation api is missing
+  //   - the mutationobserver checks the url too, for browsers with neither
+  // spa navigations to a param-scoped path pick the param up through
+  // ensureUrlParam on the rerun (or already have it via patched links)
   let debounceTimer = null;
 
   function scheduleFilter() {
@@ -565,34 +577,26 @@
     scheduleFilter();
   }
 
-  function patchHistory() {
-    const wrap = (method) => {
-      const original = history[method];
-      history[method] = function (state, title, url) {
-        // also inject the filter param into spa navigations where applicable
-        if (url && site.filterUrlParam && filterEnabled && filterMode === "toggle") {
-          try {
-            const u = new URL(url, location.origin);
-            if (shouldInjectParam(u.pathname)) {
-              url = addFilterParam(u.toString());
-            }
-          } catch (_) {}
-        }
-        original.call(this, state, title, url);
-        onNavigate();
-      };
-    };
-    wrap("pushState");
-    wrap("replaceState");
+  function watchNavigation() {
+    if (window.navigation?.addEventListener) {
+      window.navigation.addEventListener("currententrychange", onNavigate);
+    }
     window.addEventListener("popstate", onNavigate);
   }
 
   // ── 12. mutationobserver ──────────────────────────────────────────────────
   // catches lazy-loaded cards and infinite scroll additions
   // debounced so it doesn't hammer applyFilter on every individual dom mutation
+  // our own badge/banner insertions are skipped, or they'd schedule a rerun forever
+  const isOwnNode = (n) => n.nodeType === 1 && typeof n.id === "string" && n.id.startsWith("markoff-");
+
   function startObserver() {
     const observer = new MutationObserver((mutations) => {
-      if (mutations.some(m => m.addedNodes.length > 0)) scheduleFilter();
+      const added = mutations.some(m => Array.from(m.addedNodes).some(n => !isOwnNode(n)));
+      if (!added) return;
+      // url changed with no navigation event (no navigation api) — treat as a page change
+      if ((location.pathname + location.search) !== lastPathname) onNavigate();
+      else scheduleFilter();
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
@@ -611,11 +615,14 @@
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "MARKOFF_TOGGLE") {
       filterEnabled = msg.enabled;
+      temporarilyShowing = false;
       filterEnabled ? applyFilter() : (restoreAll(), updateBadge(0, 0));
     }
     if (msg.type === "MARKOFF_MODE") {
       filterMode = msg.mode;
       nativeFilterActive = false;
+      // applyFilter() bails while peeking, so a mode switch mid-peek would do nothing
+      temporarilyShowing = false;
       // switching away from toggle mode — strip the url param so server returns unfiltered results
       if (filterMode !== "toggle" && site.filterUrlParam) {
         try {
@@ -635,7 +642,7 @@
   // ── bootstrap ─────────────────────────────────────────────────────────────
   function init() {
     injectStyles();
-    patchHistory();
+    watchNavigation();
     startObserver();
     applyFilter();
   }

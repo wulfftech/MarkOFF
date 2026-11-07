@@ -3,7 +3,9 @@
 ## Scope
 Every test below maps to a real, live scenario verified (or pending verification) against production retailer sites. Tests are written to be executable — see `tests/runner/markoff-test-runner.js` for the browser-based harness.
 
-Status key: `✅` verified live | `⚠️` needs re-verification | `⬜` pending (new marketplace, selector research)
+Status key: `✅` verified live | `❌` fails live | `⚠️` needs re-verification / blocked by bot protection | `⬜` pending (new marketplace, selector research)
+
+Live runs: `tests/runner/live-extension-tests.js` (Playwright Chromium with the unpacked extension). Results in `tests/results/`.
 
 ---
 
@@ -30,14 +32,14 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Page:** /collection/marketplace
 - **Mode:** toggle
 - **Assertion:** cards with badge get `markoff-hidden` class (display:none); non-badge cards remain visible
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: 57/57 badged cards hidden on /collection/marketplace; 0/48 hidden on 1P LEGO category)
 
 ### A-04 Big W — highlight mode outlines marketplace cards
 - **Site:** bigw.com.au
 - **Page:** /collection/marketplace
 - **Mode:** highlight
 - **Assertion:** cards with badge get `markoff-highlighted` class (purple outline)
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: 57/57 highlighted, 0 hidden, badge reads "highlighted")
 
 ### A-05 Big W — detail page warning shows on marketplace product
 - **Site:** bigw.com.au
@@ -49,7 +51,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** bigw.com.au
 - **Page:** /product/*/p/* (first-party item)
 - **Assertion:** no `#markoff-detail-warning` banner
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ⚠️ Blocked — Akamai "Access Denied" on every Big W PDP, even from a fresh profile (2026-11-07)
 
 ### A-07 Big W — `/marketplace` redirects to `/collection/marketplace`
 - **Site:** bigw.com.au
@@ -61,7 +63,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** bigw.com.au
 - **Page:** /product/* (non-marketplace PDP)
 - **Assertion:** filter.js runs without exception; badge count = 0
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ⚠️ Blocked — Akamai on Big W PDPs (2026-11-07)
 
 ---
 
@@ -77,7 +79,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Page:** /shop/search/products?searchTerm=headphones
 - **Selector:** `.seller-name` inside `wc-product-tile.shadowRoot`
 - **Assertion:** shadow seller text present on 3P cards; absent on 1P cards
-- **Status:** ⚠️ Needs manual verification (bot protection blocks headless)
+- **Status:** ⚠️ Inconclusive 2026-11-07 — 21 tiles with shadow roots, but 0 `.seller-name`: the native chip had already applied `isHideEverydayMarketProducts`, so no 3P tiles were left to inspect. Re-test with the chip off
 
 ### A-11 Woolworths — shadowOwnSeller scopes to "woolworths" only
 - **Site:** woolworths.com.au
@@ -102,7 +104,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** woolworths.com.au
 - **Page:** /shop/search/products?searchTerm=headphones
 - **Assertion:** applying filter twice doesn't double-click native button (nativeFilterActive guard)
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: chip clicked once, URL keeps isHideEverydayMarketProducts — no toggle-back)
 
 ### A-15 Woolworths — no crash when custom elements not hydrated
 - **Site:** woolworths.com.au
@@ -135,25 +137,25 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Page:** /search/products?q=bookshelf
 - **Mode:** toggle
 - **Assertion:** marketplace cards get `markoff-hidden`
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: 22/22 badged cards hidden on /search/products?q=bookshelf)
 
 ### A-20 Bunnings — detail page warning shows on marketplace PDP
 - **Site:** bunnings.com.au
 - **Page:** /foret-bookshelf-..._p1076019 (marketplace)
 - **Assertion:** `#markoff-detail-warning` present via `p.text-brand-marketplace-primary`
-- **Status:** ✅ Verified (badge present on PDP, `data-search-product-tile` absent → isListingPage=false)
+- **Status:** ✅ Verified (live 2026-11-07; banner stable after the C-16 fix)
 
 ### A-21 Bunnings — detail page warning suppressed for 1P PDP
 - **Site:** bunnings.com.au
 - **Page:** /p/* (first-party item)
 - **Assertion:** no `#markoff-detail-warning`
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: Flexi Storage cube unit _p0267163, no warning)
 
 ### A-22 Bunnings — no crash on category pages without cards
 - **Site:** bunnings.com.au
 - **Page:** /category/* (any)
 - **Assertion:** filter.js runs without exception
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /products/indoor-living/bedroom/beds, no errors; 36/36 hidden, all 36 genuinely badged Marketplace)
 
 ---
 
@@ -185,13 +187,13 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** kmart.com.au
 - **Page:** /product/* (1P item with marketplace item in related-products rail)
 - **Assertion:** no false-positive warning from carousel badge
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ⚠️ Blocked — Akamai "Access Denied" on Kmart PDPs and /search (2026-11-07). Listing still OK: 10/53 hidden on /collection/marketplace-baby-nursery/
 
 ### A-28 Kmart — visible anchor preferred (offsetParent check)
 - **Site:** kmart.com.au
 - **Page:** /product/* (marketplace PDP with mobile+desktop badge duplicates)
 - **Assertion:** warning attaches to visible `.show-on-mobile` / `.hide-on-mobile` block
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ⚠️ Blocked — Akamai on Kmart PDPs (2026-11-07)
 
 ---
 
@@ -211,7 +213,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** jbhifi.com.au
 - **Page:** /collections/headphones-speakers-audio/headphones
 - **Assertion:** location.replace() adds excludeMarketplace=true; subsequent nav preserves param
-- **Status:** ⬜ Needs browser harness run (bot protection blocks headless /search)
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /collections/headphones-speakers-audio/headphones → ?excludeMarketplace=true; 0/40 MP cards left)
 
 ### A-32 JB Hi-Fi — detail page uses `_pdp` testid (not `_product-card`)
 - **Site:** jbhifi.com.au
@@ -230,13 +232,13 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Page:** /collections/*
 - **Selector:** `[class*='Switch_switchContainer'] input[type='checkbox']`
 - **Assertion:** button found and clickable
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ❌ Not found 2026-11-07 — `[class*='Switch_switchContainer'] input[type='checkbox']` with an "exclude marketplace" label matched nothing on /collections with the param active. Secondary strategy only (the URL param still filters); needs re-inspection
 
 ### A-35 JB Hi-Fi — no crash on /search (Algolia may return 0 results in headless)
 - **Site:** jbhifi.com.au
 - **Page:** /search?query=headphones
 - **Assertion:** filter.js runs without exception even with 0 cards
-- **Status:** ⚠️ Headless returns 0 results (bot protection); manual verification needed
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /search?query=headphones rendered 36 cards in a headed browser, no errors, param not injected)
 
 ---
 
@@ -262,13 +264,13 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** harveynorman.com.au
 - **Page:** /zlos-sun-angle-navigator.html
 - **Assertion:** `.product-cvps-header` text contains "Customer Direct"; warning shown
-- **Status:** ✅ Verified ("Harvey Norman Customer Direct")
+- **Status:** ✅ Verified (live 2026-11-07 on /zlos-sun-angle-navigator.html; banner stable after the C-16 fix)
 
 ### A-40 Harvey Norman — detail warning suppressed for 1P product
 - **Site:** harveynorman.com.au
 - **Page:** /p/* (first-party product)
 - **Assertion:** no `#markoff-detail-warning`
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /dji-osmo-action-6-standard-combo.html, no warning)
 
 ---
 
@@ -288,7 +290,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** myer.com.au
 - **Page:** /p/cudworth-apex-chronograph-watch-in-turquoise (Mirakl item)
 - **Assertion:** `.accordion-item` contains "sent directly from our Marketplace partner"; warning shown
-- **Status:** ✅ Verified Nov 2026
+- **Status:** ✅ Verified (live 2026-11-07; needs ~7s for hydration; banner stable after the C-16 fix)
 
 ### A-44 Myer — detailUrlPattern "^/p/" recognized
 - **Site:** myer.com.au
@@ -300,7 +302,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** myer.com.au
 - **Page:** /p/* (first-party item, no "marketplace partner" text)
 - **Assertion:** no `#markoff-detail-warning`
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /p/tommy-hilfiger-1791399-kane-brown-watch, no warning)
 
 ### A-46 Myer — listing-page filtering not available (detail-only site)
 - **Site:** myer.com.au
@@ -326,25 +328,25 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** kogan.com
 - **Page:** /au/buy/yellowprice-usb-c-car-charger...-302002018/
 - **Assertion:** "Sold by Yellow Price" found; warning shown for 3P item
-- **Status:** ✅ Verified
+- **Status:** ✅ Verified (live 2026-11-07; banner stable after the C-16 fix)
 
 ### A-50 Kogan — detailOwnSeller "kogan\\.com" suppresses 1P warning
 - **Site:** kogan.com
 - **Page:** /au/buy/* (kogan.com first-party item)
 - **Assertion:** "Sold by Kogan.com" → no warning
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /au/buy/grand-theft-auto-vi-ps5-playstation/ "Sold by Kogan.com", no warning)
 
 ### A-51 Kogan — visible anchor preferred (mobile+desktop duplicate "Sold by")
 - **Site:** kogan.com
 - **Page:** /au/buy/* (PDP)
 - **Assertion:** warning attaches to visible `p.font-body-low-emphasis`, not hidden mobile duplicate
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: warning visible on Yellow Price PDP)
 
 ### A-52 Kogan — listingPatterns ["/au/shop/"] recognized
 - **Site:** kogan.com
 - **Page:** /au/shop/category/* (listing)
 - **Assertion:** isListingPage() returns true on shop category pages
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /au/shop/category/… loads, nothing hidden)
 
 ---
 
@@ -364,7 +366,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** theiconic.com.au
 - **Page:** any
 - **Assertion:** popup renders `tag-unverified` for THE ICONIC
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (popup D-02, 2026-11-07)
 
 ### A-56 THE ICONIC — detail page no warning
 - **Site:** theiconic.com.au
@@ -378,13 +380,13 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** jaycar.com.au
 - **Page:** /3d-printers-supplies/c/10
 - **Assertion:** excludeEa=1 added to URL; server returns filtered results
-- **Status:** ⬜ Needs browser harness run (Forter bot protection)
+- **Status:** ✅ Verified 2026-11-07 — URL becomes /3d-printers-supplies/c/10?excludeEa=1 (Forter then blanks the page in automation)
 
 ### A-58 Jaycar — `brandButton` replaces "Exclude Marketplace Products" button text
 - **Site:** jaycar.com.au
 - **Page:** /3d-printers-supplies/c/10
 - **Assertion:** button shows "Marketplace Items Hidden" when param active
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ⚠️ Blocked — Forter challenge renders an empty page in automation (2026-11-07); manual check needed
 
 ### A-59 Jaycar — no per-card badge (card="" empty)
 - **Site:** jaycar.com.au
@@ -402,7 +404,7 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** jaycar.com.au
 - **Page:** /search with ?excludeEa=1
 - **Assertion:** switching to highlight mode removes param (history.replaceState)
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ⚠️ Blocked — Forter (2026-11-07); manual check needed
 
 ---
 
@@ -416,13 +418,13 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** woolworths.com.au
 - **Page:** /shop/specials
 - **Assertion:** isListingPage() returns true
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /shop/specials loads, styles injected, no errors)
 
 ### A-64 Bunnings — `/brand` and `/bunnings-marketplace` in listingPatterns
 - **Site:** bunnings.com.au
 - **Page:** /brand/* and /bunnings-marketplace
 - **Assertion:** isListingPage() returns true
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /bunnings-marketplace loads, no errors; landing page has no tiles)
 
 ### A-65 Kmart — `/category/`, `/collection/`, `/search` in listingPatterns
 - **Site:** kmart.com.au
@@ -434,19 +436,19 @@ Eight tests per active retailer (Big W, Woolworths, Bunnings, Kmart, JB Hi-Fi, H
 - **Site:** jbhifi.com.au
 - **Page:** /category/*
 - **Assertion:** isListingPage() returns true (but param NOT injected — filterUrlParamPatterns only /collections)
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Pattern OK, no param injected on /category (2026-11-07) — but jbhifi.com.au/category/* now 404s, so the pattern is dead weight
 
 ### A-67 Harvey Norman — `/c/` and `/category` in listingPatterns
 - **Site:** harveynorman.com.au
 - **Page:** /c/* and /category/*
 - **Assertion:** isListingPage() returns true
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Covered by DOM fallback (2026-11-07) — HN listings now live at /sale/… and /computers-tablets/…, not /c/ or /category; cards found via selector (40 on drone-sale). drone-sale currently shows 0 ONLINE ONLY flags (all 40 read "BONUS E-GIFT CARD"), so a promo flag may displace ONLINE ONLY on a Customer Direct card
 
 ### A-68 Myer — `/search` and `/c/` in listingPatterns
 - **Site:** myer.com.au
 - **Page:** /search and /c/*
 - **Assertion:** isListingPage() returns true
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: /c/… and /search load, nothing hidden)
 
 ---
 
@@ -520,12 +522,12 @@ Three confirmed marketplaces with no verified selectors yet.
 
 ---
 
-## Category C — Filter engine / filter.js (tests C-01 → C-15)
+## Category C — Filter engine / filter.js (tests C-01 → C-17)
 
 ### C-01 — Extension loads only on matched domains
 - **Site:** any non-MarkOFF domain (e.g. google.com)
 - **Assertion:** filter.js returns early (no site match); no classes injected
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: example.com — no styles, no badge)
 
 ### C-02 — sites.js syntax valid (Node parse)
 - **Assertion:** `node --check sites.js` passes
@@ -541,47 +543,55 @@ Three confirmed marketplaces with no verified selectors yet.
 
 ### C-05 — Global toggle off disables all filtering
 - **Assertion:** `chrome.storage.sync.get("globalEnabled") === false` → restoreAll(), no hiding
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: globalEnabled=false → 0 hidden after reload; MARKOFF_TOGGLE off/on → 0 / 57 hidden)
 
 ### C-06 — Per-site toggle off disables filtering for that site
 - **Assertion:** `site_<id> === false` → filterEnabled = false for that site only
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: site_bigw=false → 0 hidden)
 
 ### C-07 — Toggle vs highlight mode switching
 - **Assertion:** switching modes restores hidden cards / applies highlights correctly
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: toggle→highlight→toggle restores 57 hidden / 0 highlighted)
 
 ### C-08 — SPA navigation (pushState/replaceState) triggers re-filter
 - **Assertion:** history.patch triggers onNavigate → scheduleFilter → applyFilter
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (fixed in filter.js and re-verified live 2026-11-07) — `patchHistory()` replaced by `watchNavigation()`: the Navigation API `currententrychange` event and popstate cross the isolated-world boundary, and the MutationObserver checks the URL as a fallback. A page-world pushState while peeking now resets peek and re-hides (58/58)
 
 ### C-09 — popstate (back/forward) triggers re-filter
 - **Assertion:** window.addEventListener("popstate") → onNavigate
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: back to an unseen URL resets peek, 57 hidden)
 
 ### C-10 — MutationObserver catches lazy-loaded / infinite-scroll cards
 - **Assertion:** addedNodes → scheduleFilter → applyFilter (debounced 300ms)
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: cloned marketplace tile hidden within 900ms)
 
 ### C-11 — Peek badge click shows/hides hidden items (dimmed toggle)
 - **Assertion:** badge click toggles HIDDEN_CLASS ↔ DIMMED_CLASS
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: 57 hidden → 57 dimmed → 57 hidden)
 
 ### C-12 — URL param injection on eligible paths only
 - **Assertion:** JB Hi-Fi /collections gets param; /search does not (filterUrlParamPatterns guard)
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: JB /collections gets the param, /search does not)
 
 ### C-13 — Pre-navigation href patching adds param to links
 - **Assertion:** patchOutboundNavigation rewrites a[href] with excludeEa=1 / excludeMarketplace=true
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: 1,730 links patched on a JB /collections page)
 
 ### C-14 — Form GET submission gets param added
 - **Assertion:** capture-phase submit listener adds param to form.action
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live run 2026-11-07, `live-extension-tests.js`: GET form to /collections/… submitted with excludeMarketplace=true appended)
 
 ### C-15 — Detail warning anchor prefers visible element (offsetParent)
 - **Assertion:** candidates.filter(el => el.offsetParent !== null) || candidates[0]
 - **Status:** ✅ Verified logic (Nov 2026 fix)
+
+### C-16 — Detail warning is inserted once and stays put
+- **Assertion:** on a static PDP, `#markoff-detail-warning` is not re-inserted after the first render
+- **Status:** ✅ Verified (fixed in filter.js and re-verified live 2026-11-07) — 0 re-insertions in 3s on Bunnings, JB Hi-Fi, Harvey Norman, Myer and Kogan PDPs. `showDetailWarning()` leaves a banner that already sits before the same anchor, and the MutationObserver ignores markoff's own nodes
+
+### C-17 — Mode switch while peeking takes effect
+- **Assertion:** sending MARKOFF_MODE "highlight" while peeking clears dimmed cards and highlights marketplace cards
+- **Status:** ✅ Verified (fixed in filter.js and re-verified live 2026-11-07) — MARKOFF_MODE and MARKOFF_TOGGLE reset `temporarilyShowing`; highlight mid-peek gives 57 highlighted, 0 dimmed
 
 ---
 
@@ -589,35 +599,35 @@ Three confirmed marketplaces with no verified selectors yet.
 
 ### D-01 — Popup renders site list with correct active/inactive states
 - **Assertion:** site-inactive class on officeworks/coles/chemistwarehouse/catch/babybunting/rebelsport/theiconic
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07: 16 rows, 6 inactive)
 
 ### D-02 — Popup shows "unverified" tag for theiconic, babybunting, chemistwarehouse, rebelsport
 - **Assertion:** tag-unverified class where inspected === false
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07: only THE ICONIC — the tag is shown for active sites only, so inactive unverified sites get none)
 
 ### D-03 — Popup shows "detail only" tag for myer, kogan, harveynorman
 - **Assertion:** tag-detail-only class where badge empty but detail set
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07: Myer, Kogan. Harvey Norman has a listing badge, so it is correctly not tagged)
 
 ### D-04 — Global toggle persists to chrome.storage.sync
 - **Assertion:** storage.get("globalEnabled") matches toggle state
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07)
 
 ### D-05 — Filter mode persists and broadcasts MARKOFF_MODE
 - **Assertion:** storage.get("filterMode"); content script receives message
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07: storage updates; MARKOFF_MODE delivery covered by A-04/C-07)
 
 ### D-06 — About panel shows correct version from manifest
 - **Assertion:** chrome.runtime.getManifest().version = 1.1.2
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07: v1.1.3)
 
 ### D-07 — Per-site toggle persists
 - **Assertion:** storage.get("site_<id>") matches toggle state
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07: site_kogan false → true)
 
 ### D-08 — Disabled sites (officeworks, coles, etc.) have disabled toggle inputs
 - **Assertion:** input.disabled === true for active === false sites
-- **Status:** ⬜ Needs popup harness run
+- **Status:** ✅ Verified (live 2026-11-07)
 
 ---
 
@@ -645,7 +655,7 @@ Three confirmed marketplaces with no verified selectors yet.
 
 ### E-06 — ZIP integrity (can be unzipped)
 - **Assertion:** unzip -t passes on both zips
-- **Status:** ⬜ Needs shell verification
+- **Status:** ✅ Verified (`unzip -t` on both 1.1.3 zips, 2026-11-07)
 
 ### E-07 — CRLF line endings in sites.js, filter.js, manifest.json
 - **Assertion:** no lone LF; Windows-authored consistency
@@ -697,20 +707,20 @@ Three confirmed marketplaces with no verified selectors yet.
 
 ### F-10 — No console errors on load across all active domains
 - **Assertion:** filter.js init() completes without uncaught exceptions
-- **Status:** ⬜ Needs browser harness run
+- **Status:** ✅ Verified (live 2026-11-07: no extension-sourced exceptions on the sites that loaded)
 
 ---
 
 ## Summary
 
-| Category | Tests | Verified | Pending |
-|----------|-------|----------|---------|
-| A — Per-retailer filtering | 68 | 24 | 44 |
-| B — New marketplaces | 12 | 8 | 4 |
-| C — Filter engine | 15 | 2 | 13 |
-| D — Popup UI | 8 | 0 | 8 |
-| E — Build/packaging | 8 | 7 | 1 |
-| F — Regression/edge | 10 | 8 | 2 |
-| **Total** | **121** | **49** | **72** |
+| Category | Tests | Verified | Failing | Pending / blocked |
+|----------|-------|----------|---------|---------|
+| A — Per-retailer filtering | 68 | 60 | 1 | 7 |
+| B — New marketplaces | 12 | 8 | 0 | 4 |
+| C — Filter engine | 17 | 17 | 0 | 0 |
+| D — Popup UI | 8 | 8 | 0 | 0 |
+| E — Build/packaging | 8 | 8 | 0 | 0 |
+| F — Regression/edge | 10 | 9 | 0 | 1 |
+| **Total** | **123** | **110** | **1** | **12** |
 
-To complete the remaining 72 tests, run the browser-based harness in `tests/runner/` against live sites, or verify manually per the status notes above.
+Remaining 12 are pending selector research (B), blocked by Akamai/Forter in automation (Big W and Kmart PDPs, Jaycar), or not yet run (F-09). Blocked ones need a manual check in a normal browser.

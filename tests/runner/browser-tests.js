@@ -2,6 +2,10 @@
 // Paste this into Chrome DevTools Console on ANY MarkOFF-supported retailer page.
 // It runs the live DOM assertions for that site and prints a JSON report.
 // Designed to work with the MarkOFF extension loaded (sites.js + filter.js injected).
+// Caveat: content scripts run in an isolated world, so window.MARKOFF_SITES is only
+// visible if you switch the console's context dropdown from "top" to the MarkOFF
+// extension. From the default context it always reports "site not identified".
+// For unattended runs use live-extension-tests.js, which loads the real extension.
 
 (function markoffBrowserTests() {
   const RESULTS = [];

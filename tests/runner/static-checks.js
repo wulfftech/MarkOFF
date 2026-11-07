@@ -132,18 +132,22 @@ check("Kogan card empty to avoid PDP article-rail false-positive", () => {
 check("filter.js detail warning block not a stub", () => {
   const filterJs = fs.readFileSync(path.join(ROOT, "content/filter.js"), "utf8");
   const hasStub = filterJs.includes("// ...existing code...");
-  const hasReal = filterJs.includes("showDetailWarning(anchor)");
+  // a call site, not just the definition (which takes anchorEl)
+  const hasReal = /showDetailWarning\((?!anchorEl)\w+\)/.test(filterJs);
   return { pass: !hasStub && hasReal, detail: hasStub ? "STUB STILL PRESENT" : "real detail warning restored" };
 });
 
 // ── 3. Build outputs ─────────────────────────────────────────────────────────
+// zip names follow the manifest version, so a version bump without a rebuild fails here
+const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8")).version;
+
 check("Chrome zip exists", () => {
-  const zip = path.join(ROOT, "dist", "markoff-chrome-1.1.2.zip");
+  const zip = path.join(ROOT, "dist", `markoff-chrome-${VERSION}.zip`);
   return { pass: fs.existsSync(zip), detail: zip };
 });
 
 check("Firefox zip exists", () => {
-  const zip = path.join(ROOT, "dist", "markoff-firefox-1.1.2.zip");
+  const zip = path.join(ROOT, "dist", `markoff-firefox-${VERSION}.zip`);
   return { pass: fs.existsSync(zip), detail: zip };
 });
 

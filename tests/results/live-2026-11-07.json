@@ -1,0 +1,433 @@
+{
+  "ran": "2026-11-07",
+  "runner": "tests/runner/live-extension-tests.js",
+  "note": "Merged from two runs; bigw/kmart/myer/harveynorman/jaycar from the second (fixed-timing) run. bigw/bunnings/jbhifi/harveynorman/myer/kogan rerun after the filter.js fixes for C-08, C-16 and C-17; popup/offsite/woolworths/kmart/theiconic/jaycar rerun showed no regressions.",
+  "results": [
+    {
+      "suite": null,
+      "id": "F-10",
+      "pass": true,
+      "detail": "no extension-sourced exceptions; run1's one hit was net::ERR_FAILED for a resource aborted by JB Hi-Fi's location.replace param redirect, not a script error"
+    },
+    {
+      "id": "A-03",
+      "pass": true,
+      "detail": "/collection/marketplace cards=57 badged=57 hidden=57",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-badge",
+      "pass": true,
+      "detail": "count badge: MarkOFF: 57 marketplace items hidden — click to peek",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-11",
+      "pass": true,
+      "detail": "peek: dimmed 57/57, re-hide: hidden 57/57",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-10",
+      "pass": true,
+      "detail": "injected marketplace card hidden after mutation: true",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-08",
+      "pass": true,
+      "detail": "after page-world pushState while peeking: badge=\"MarkOFF: 58 marketplace items hidden — click to peek\", dimmed=0, hidden=58",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-09",
+      "pass": true,
+      "detail": "after popstate: badge=\"MarkOFF: 57 marketplace items hidden — click to peek\", dimmed=0, hidden=57",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-07b",
+      "pass": true,
+      "detail": "mode→highlight while peeking: highlighted=57 dimmed=0 badge=\"MarkOFF: 57 marketplace items highlighted\"",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-04",
+      "pass": true,
+      "detail": "highlight: highlighted=57 badged=57 hidden=0 badge=\"MarkOFF: 57 marketplace items highlighted\"",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-07",
+      "pass": true,
+      "detail": "back to toggle: hidden=57 highlighted=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-05",
+      "pass": true,
+      "detail": "globalEnabled=false: hidden=0, badge=null",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-06",
+      "pass": true,
+      "detail": "site_bigw=false: hidden=0, badge=null",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-05b",
+      "pass": true,
+      "detail": "MARKOFF_TOGGLE off→hidden=0, on→hidden=57/57",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-03b",
+      "pass": true,
+      "detail": "/toys/lego/c/6822101 cards=48 badged=0 hidden=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-62",
+      "pass": true,
+      "detail": "native switch count on /c/ = 0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-05",
+      "pass": null,
+      "detail": "all candidate pages blocked/failed",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-06",
+      "pass": null,
+      "detail": "all candidate pages blocked/failed",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-19",
+      "pass": true,
+      "detail": "cards=36 badged=22 hidden=22",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-64",
+      "pass": true,
+      "detail": "/bunnings-marketplace cards=0 hidden=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-22",
+      "pass": true,
+      "detail": "/products/indoor-living/bedroom/beds loaded, cards=36, hidden=36",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-20",
+      "pass": true,
+      "detail": "/foret-bookshelf-expandable-open-shelf-storage-unit-3-tier-60-110cm-walnut_p1076019 warning=true visible=true reinserted 0x in 3s",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-20-churn",
+      "pass": true,
+      "detail": "warning re-inserted 0 times in 3s on a static page",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-21",
+      "pass": true,
+      "detail": "/flexi-storage-clever-cube-760-x-390-x-1460mm-oak-2-x-4-storage-unit_p0267163 warning=false visible=false",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-31",
+      "pass": true,
+      "detail": "final url https://www.jbhifi.com.au/collections/headphones-speakers-audio/headphones?excludeMarketplace=true",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-12a",
+      "pass": true,
+      "detail": "param injected on /collections",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-13",
+      "pass": true,
+      "detail": "links patched with param: 1730",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-34",
+      "pass": false,
+      "detail": "native toggle not found",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-jb-cards",
+      "pass": true,
+      "detail": "MP cards remaining after server filter: 0/40",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-14",
+      "pass": true,
+      "detail": "form-submitted url https://www.jbhifi.com.au/collections/headphones-speakers-audio?markoff_form=1&excludeMarketplace=true",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "C-12b",
+      "pass": true,
+      "detail": "/search not param-injected: https://www.jbhifi.com.au/search?query=headphones",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-35",
+      "pass": true,
+      "detail": "/search loaded, cards=36 badged=0 hidden=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-jb-mpcoll",
+      "pass": true,
+      "detail": "marketplace-all-products with param: cards=0 url=https://www.jbhifi.com.au/collections/marketplace-all-products?excludeMarketplace=true",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-66",
+      "pass": true,
+      "detail": "/category url https://www.jbhifi.com.au/category/headphones (status page title \"404 Not Found\")",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-32",
+      "pass": true,
+      "detail": "/products/koolatron-retro-mini-fridge-4l-black warning=true visible=true reinserted 0x in 3s",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-32-churn",
+      "pass": true,
+      "detail": "warning re-inserted 0 times in 3s on a static page",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-jb-1p",
+      "pass": true,
+      "detail": "/products/sony-wh-ch520-wireless-on-ear-headphones-beige warning=false visible=false",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-HN-list",
+      "pass": true,
+      "detail": "/sale/computers-technology/drone-sale cards=40 badged=0 hidden=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-67",
+      "pass": null,
+      "detail": "no /c/ or /category link on page",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-39",
+      "pass": true,
+      "detail": "/zlos-sun-angle-navigator.html warning=true visible=true reinserted 0x in 3s",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-39-churn",
+      "pass": true,
+      "detail": "warning re-inserted 0 times in 3s on a static page",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-40",
+      "pass": true,
+      "detail": "/dji-osmo-action-6-standard-combo.html warning=false visible=false",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-68",
+      "pass": true,
+      "detail": "/c/ listing: styles=true hidden=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-43",
+      "pass": true,
+      "detail": "/p/cudworth-apex-chronograph-watch-in-turquoise MP text present, warning=true, reinserted 0x/3s",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-45",
+      "pass": true,
+      "detail": "/p/tommy-hilfiger-1791399-kane-brown-watch no MP text, warning=false",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-68b",
+      "pass": true,
+      "detail": "/search styles=true",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-52",
+      "pass": true,
+      "detail": "/au/shop/ listing: styles=true, hidden=0",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-49",
+      "pass": true,
+      "detail": "/au/buy/yellowprice-usb-c-car-charger-2-sockets-cigarette-lighter-splitter-1224v-80w-dual-usb-led-302002018/ \"Sold by Yellow Price\" warning=true, reinserted 0x/3s",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-51",
+      "pass": true,
+      "detail": "warning visible=true",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "A-50",
+      "pass": true,
+      "detail": "/au/buy/grand-theft-auto-vi-ps5-playstation/ \"Sold by Kogan.com\" warning=false",
+      "rerun": "after filter.js fixes for C-08/C-16/C-17"
+    },
+    {
+      "id": "D-01",
+      "pass": true,
+      "detail": "rows=16, inactive=Officeworks, Chemist Warehouse, Coles, Baby Bunting, Rebel Sport, Catch",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-02",
+      "pass": true,
+      "detail": "unverified tags: THE ICONIC",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-03",
+      "pass": true,
+      "detail": "detail-only tags: Myer, Kogan",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-08",
+      "pass": true,
+      "detail": "inactive rows have disabled inputs",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-06",
+      "pass": true,
+      "detail": "about version v1.1.3, manifest 1.1.3",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-04",
+      "pass": true,
+      "detail": "globalEnabled after clicks: false → true",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-05",
+      "pass": true,
+      "detail": "filterMode after clicks: highlight → toggle",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "D-07",
+      "pass": true,
+      "detail": "site_kogan after clicks: false → true",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "C-01",
+      "pass": true,
+      "detail": "example.com styles=false badge=false",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-kmart-list",
+      "pass": true,
+      "detail": "cards=53 badged=10 hidden=10",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-65",
+      "pass": null,
+      "detail": "blocked: Access Denied",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-26",
+      "pass": null,
+      "detail": "all candidate pages blocked/failed",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-27",
+      "pass": null,
+      "detail": "no candidate URL found on listing",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-28",
+      "pass": null,
+      "detail": "blocked: Access Denied",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-53",
+      "pass": true,
+      "detail": "/womens-clothing/ cards=67 hidden=0",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-56",
+      "pass": true,
+      "detail": "/chloe-eau-de-parfum-50ml-2289512.html warning=false",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-jaycar",
+      "pass": null,
+      "detail": "blocked: jaycar.com.au",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-09",
+      "pass": true,
+      "detail": "tiles=21, with shadowRoot=21",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-10",
+      "pass": null,
+      "detail": "tiles with .seller-name=0: ",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-13",
+      "pass": true,
+      "detail": "3P seller tiles hidden 0/0; total hidden=0",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-14",
+      "pass": true,
+      "detail": "native chip after filter: {\"text\":\"Best Unit Price\",\"pressed\":\"false\"}; url=has server filter",
+      "rerun": "regression rerun after filter.js fixes"
+    },
+    {
+      "id": "A-63",
+      "pass": true,
+      "detail": "/shop/specials loaded, styles=true, cards=0, hidden=0",
+      "rerun": "regression rerun after filter.js fixes"
+    }
+  ]
+}
