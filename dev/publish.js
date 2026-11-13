@@ -34,56 +34,93 @@ function findZip(store) {
 }
 
 // ── Chrome Web Store ─────────────────────────────────────────────────────────
-// OAuth2 refresh-token flow → upload → publish.
-// Uploads to a draft; publish pushes it to review. If a draft already exists
-// (uploadState FAILURE/ITEM_ERROR), it's replaced by the new upload.
+// API V2 (v1.1 was scheduled to shut down 2026-10-15): upload → publish.
+// Auth is a service account when serviceAccountKeyFile is set — no consent
+// screen and no 7-day token expiry. The refresh-token flow is the fallback.
 
-async function chromeAccessToken(cfg) {
-  const body = new URLSearchParams({
-    client_id: cfg.clientId,
-    client_secret: cfg.clientSecret,
-    refresh_token: cfg.refreshToken,
-    grant_type: "refresh_token",
-  });
-  const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", body });
+const CWS_SCOPE = "https://www.googleapis.com/auth/chromewebstore";
+const CWS_API   = "https://chromewebstore.googleapis.com";
+
+async function exchangeToken(body, tokenUri = "https://oauth2.googleapis.com/token") {
+  const res = await fetch(tokenUri, { method: "POST", body });
   const tok = await res.json();
   if (tok.error) throw new Error(`token exchange failed: ${tok.error} — ${tok.error_description ?? ""}`);
   return tok.access_token;
 }
 
+function serviceAccountToken(keyFile) {
+  const key = JSON.parse(fs.readFileSync(path.resolve(ROOT, "dev", keyFile), "utf8").replace(/^﻿/, ""));
+  const b64url = (s) => Buffer.from(s).toString("base64url");
+  const now = Math.floor(Date.now() / 1000);
+  const unsigned =
+    b64url(JSON.stringify({ alg: "RS256", typ: "JWT" })) + "." +
+    b64url(JSON.stringify({ iss: key.client_email, scope: CWS_SCOPE, aud: key.token_uri, iat: now, exp: now + 3600 }));
+  const sig = crypto.createSign("RSA-SHA256").update(unsigned).sign(key.private_key, "base64url");
+  return exchangeToken(new URLSearchParams({
+    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    assertion: `${unsigned}.${sig}`,
+  }), key.token_uri);
+}
+
+function chromeAccessToken(cfg) {
+  if (cfg.serviceAccountKeyFile) return serviceAccountToken(cfg.serviceAccountKeyFile);
+  return exchangeToken(new URLSearchParams({
+    client_id: cfg.clientId,
+    client_secret: cfg.clientSecret,
+    refresh_token: cfg.refreshToken,
+    grant_type: "refresh_token",
+  }));
+}
+
+function chromeItemName(cfg) {
+  if (!cfg.publisherId) throw new Error("chrome.publisherId missing from dev/publish.config.json (Developer Dashboard → Publisher → Settings)");
+  return `publishers/${cfg.publisherId}/items/${cfg.itemId}`;
+}
+
+async function chromeFetchStatus(name, headers) {
+  const res = await fetch(`${CWS_API}/v2/${name}:fetchStatus`, { headers });
+  const json = await res.json();
+  if (!res.ok) throw new Error(`fetchStatus failed (HTTP ${res.status}): ${JSON.stringify(json).slice(0, 500)}`);
+  return json;
+}
+
 async function publishChrome(dryRun) {
   const cfg = loadConfig().chrome;
   const { zip, version } = findZip("chrome");
-  const token = await chromeAccessToken(cfg);
-  const headers = { Authorization: `Bearer ${token}`, "x-goog-api-version": "2" };
+  const name = chromeItemName(cfg);
+  const headers = { Authorization: `Bearer ${await chromeAccessToken(cfg)}` };
 
-  // 1. upload the zip to a new draft
-  const uploadUrl =
-    `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${cfg.itemId}`;
+  // 1. upload the zip — fails if the manifest version wasn't increased
   console.log(`→ Chrome: uploading v${version} (${(fs.statSync(zip).size / 1024).toFixed(0)} KB)...`);
-  const up = await fetch(uploadUrl, {
-    method: "PUT",
+  const up = await fetch(`${CWS_API}/upload/v2/${name}:upload`, {
+    method: "POST",
     headers: { ...headers, "Content-Type": "application/zip" },
     body: fs.readFileSync(zip),
   });
   const upJson = await up.json();
-  if (!up.ok || upJson.uploadState === "FAILURE") {
-    throw new Error(`upload failed (HTTP ${up.status}): ${JSON.stringify(upJson).slice(0, 500)}`);
+  if (!up.ok) throw new Error(`upload failed (HTTP ${up.status}): ${JSON.stringify(upJson).slice(0, 500)}`);
+
+  // large uploads finish asynchronously — fetchStatus reports the outcome
+  let state = upJson.uploadState;
+  for (let i = 0; /PROGRESS/.test(state ?? "") && i < 60; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    state = (await chromeFetchStatus(name, headers)).lastAsyncUploadState;
   }
-  console.log(`  uploadState: ${upJson.uploadState}`);
+  if (!/SUCCE/.test(state ?? "")) throw new Error(`upload did not succeed: ${state} ${JSON.stringify(upJson).slice(0, 500)}`);
+  console.log(`  uploadState: ${state}`);
 
   if (dryRun) { console.log("  (dry run — skipping publish)"); return; }
 
-  // 2. publish the draft to the listed track
-  const pub = await fetch(
-    `https://www.googleapis.com/chromewebstore/v1.1/items/${cfg.itemId}/publish`,
-    { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, body: "{}" }
-  );
+  // 2. submit for review, using the visibility saved on the listing
+  const pub = await fetch(`${CWS_API}/v2/${name}:publish`, {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: "{}",
+  });
   const pubJson = await pub.json();
-  if (!pub.ok || pubJson.status?.[0] === "ITEM_ERROR") {
-    throw new Error(`publish failed (HTTP ${pub.status}): ${JSON.stringify(pubJson).slice(0, 500)}`);
-  }
-  console.log(`  publish status: ${JSON.stringify(pubJson.status ?? pubJson)}`);
+  if (!pub.ok) throw new Error(`publish failed (HTTP ${pub.status}): ${JSON.stringify(pubJson).slice(0, 500)}`);
+  console.log(`  publish state: ${pubJson.state}`);
+  (pubJson.warningInfo?.warnings ?? []).forEach(w => console.log(`  warning: ${w.reason} — ${w.description}`));
   console.log(`✓ Chrome Web Store: v${version} submitted for review`);
 }
 
@@ -104,9 +141,6 @@ async function publishAmo(dryRun) {
   const cfg = loadConfig().amo;
   const { zip, version } = findZip("firefox");
   const jwt = amoJwt(cfg.apiKey, cfg.apiSecret);
-
-  console.log(`→ AMO: uploading v${version} (${(fs.statSync(zip).size / 1024).toFixed(0)} KB)...`);
-  if (dryRun) { console.log("  (dry run — skipping upload)"); return; }
 
   // two-step flow: POST the file to /addons/upload/ → get a UUID,
   // then POST that UUID to the addon's versions endpoint
@@ -162,13 +196,12 @@ async function listVersions() {
   const cfg = loadConfig();
 
   // chrome
-  const token = await chromeAccessToken(cfg.chrome);
-  const r = await fetch(
-    `https://www.googleapis.com/chromewebstore/v1.1/items/${cfg.chrome.itemId}?projection=DRAFT`,
-    { headers: { Authorization: `Bearer ${token}`, "x-goog-api-version": "2" } }
-  );
-  const item = await r.json();
-  console.log(`Chrome: v${item.crxVersion} (uploadState: ${item.uploadState})`);
+  const headers = { Authorization: `Bearer ${await chromeAccessToken(cfg.chrome)}` };
+  const item = await chromeFetchStatus(chromeItemName(cfg.chrome), headers);
+  const describe = (rev) => rev
+    ? `v${rev.distributionChannels?.[0]?.crxVersion ?? "?"} (${rev.state})`
+    : "none";
+  console.log(`Chrome: published ${describe(item.publishedItemRevisionStatus)}, submitted ${describe(item.submittedItemRevisionStatus)}`);
 
   // amo
   const jwt = amoJwt(cfg.amo.apiKey, cfg.amo.apiSecret);
@@ -198,6 +231,7 @@ const dryRun = args.includes("--dry-run");
     }
   } catch (e) {
     console.error(`✗ ${e.message}`);
-    process.exit(1);
+    // exitCode, not exit(): exiting while fetch's sockets close trips a libuv assertion on Windows
+    process.exitCode = 1;
   }
 })();
