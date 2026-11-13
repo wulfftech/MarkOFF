@@ -564,9 +564,13 @@ suites.popup = async (page, extId) => {
   }
   rec("F-10", consoleErrors.length === 0, consoleErrors.length ? consoleErrors.slice(0, 5).join(" | ") : "no extension-sourced console errors");
 
-  const out = path.join(ROOT, "tests", "results", `live-${new Date().toISOString().slice(0, 10)}.json`);
-  fs.writeFileSync(out, JSON.stringify({ ran: new Date().toISOString(), results }, null, 2));
+  // a second run on the same day gets a time suffix instead of overwriting the first
+  const stamp = new Date().toISOString();
+  let out = path.join(ROOT, "tests", "results", `live-${stamp.slice(0, 10)}.json`);
+  if (fs.existsSync(out)) out = out.replace(/\.json$/, `-${stamp.slice(11, 16).replace(":", "")}.json`);
+  fs.writeFileSync(out, JSON.stringify({ ran: stamp, results }, null, 2));
   const n = (v) => results.filter((r) => r.pass === v).length;
   console.log(`\n${n(true)} pass, ${n(false)} fail, ${n(null)} skipped → ${out}`);
   await ctx.close();
+  fs.rmSync(profile, { recursive: true, force: true });
 })();
